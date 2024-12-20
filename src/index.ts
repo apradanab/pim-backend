@@ -13,7 +13,7 @@ const server = createServer(app);
 
 dbConnect()
   .then((prisma) => {
-    startApp(app);
+    startApp(app, prisma);
     server.listen(port);
   })
   .catch((error) => {
@@ -26,5 +26,5 @@ server.on('error', (error) => {
 });
 
 server.on('listening', () => {
-  console.log(`Server Express is running http://localhost${port}`);
+  console.log(`Server Express is running http://localhost:${port}`);
 })
