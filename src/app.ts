@@ -25,4 +25,10 @@ export const startApp = (app: Express, prisma: PrismaClient) => {
   const usersRouter = new UsersRouter(usersController);
 
   app.use("/users", usersRouter.router);
+
+  app.get('/', (req, res) => {
+    res.status(200).send('Welcome to the PIM backend!');
+  });
+
+  return app;
 };
