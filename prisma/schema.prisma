@@ -14,6 +14,77 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
+  id           String            @id @default(uuid())
+  name         String
+  email        String            @unique
+  password     String?
+  role         Role              @default(GUEST)
+  approved     Boolean           @default(false)
+  message      String?
+  avatar       String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  appointments AppointmentUser[]
+}
+
+model Appointment {
+  id                 String            @id @default(uuid())
+  date               DateTime
+  startTime          DateTime
+  endTime            DateTime
+  status             AppointmentStatus @default(PENDING)
+  serviceId          String
+  cancellationReason String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  service            Service           @relation(fields: [serviceId], references: [id])
+  users              AppointmentUser[]
+}
+
+model AppointmentUser {
+  id            String      @id @default(uuid())
+  appointmentId String
+  userId        String
+  createdAt     DateTime    @default(now())
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  user          User        @relation(fields: [userId], references: [id])
+
+  @@unique([appointmentId, userId])
+}
+
+model Service {
+  id           String        @id @default(uuid())
+  title        String
+  description  String
+  content      String
+  image        String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  appointments Appointment[]
+  resources    Resource[]
+}
+
+model Resource {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  content     String
+  image       String
+  serviceId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  service     Service  @relation(fields: [serviceId], references: [id])
+}
+
+enum Role {
+  GUEST
+  USER
+  ADMIN
+}
+
+enum AppointmentStatus {
+  PENDING
+  OCCUPIED
+  COMPLETED
+  CANCELLED
 }
