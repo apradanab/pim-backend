@@ -1,38 +1,45 @@
-import globals from "globals";
-import js from "@eslint/js";
-import tsParser from "@typescript-eslint/parser";
-import tsPlugin from "@typescript-eslint/eslint-plugin";
+import globals from 'globals';
+import tsParser from '@typescript-eslint/parser';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   {
-    files: ["**/*.{js,cjs,mjs}"],
+    files: ['**/*.{js,cjs,mjs}'],
     languageOptions: {
       globals: {
         ...globals.browser,
         ...globals.node,
       },
-      ecmaVersion: "latest",
-      sourceType: "module",
+      ecmaVersion: 'latest',
+      sourceType: 'module',
     },
     rules: {
-      ...js.configs.recommended.rules,
+      'no-unused-vars': ['off', { argsIgnorePattern: '^_' }],
     },
   },
   {
-    files: ["**/*.{ts,tsx}"],
+    files: ['**/*.{ts,tsx}'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        project: "./tsconfig.json",
+        project: './tsconfig.json',
         tsconfigRootDir: process.cwd(),
       },
     },
     plugins: {
-      "@typescript-eslint": tsPlugin,
+      '@typescript-eslint': tsPlugin,
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
+      '@typescript-eslint/no-unused-vars': ['off', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': [
+        'error',
+        {
+          fixToUnknown: false,
+          ignoreRestArgs: false,
+        },
+      ],
     },
   },
 ];

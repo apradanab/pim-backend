@@ -6,6 +6,8 @@ import cors from 'cors';
 import { UsersSqlRepo } from './repositories/users.sql.repo.js';
 import { UsersController } from './controllers/users.controller.js';
 import { UsersRouter } from './routers/users.router.js';
+import { AuthInterceptor } from './middlewares/auth.interceptor.js';
+import { ErrorsMiddleware } from './middlewares/errors.middleware.js';
 
 const debug = createDebug('PIM:app');
 export const createApp = () => {
@@ -20,15 +22,16 @@ export const startApp = (app: Express, prisma: PrismaClient) => {
   app.use(express.json());
   app.use(express.static('public'));
 
+  const authInterceptor = new AuthInterceptor();
+
   const usersRepo = new UsersSqlRepo(prisma);
   const usersController = new UsersController(usersRepo);
-  const usersRouter = new UsersRouter(usersController);
-
+  const usersRouter = new UsersRouter(
+    usersController,
+    authInterceptor
+  );
   app.use("/users", usersRouter.router);
 
-  app.get('/', (req, res) => {
-    res.status(200).send('Welcome to the PIM backend!');
-  });
-
-  return app;
+  const errorsMiddleware = new ErrorsMiddleware();
+  app.use(errorsMiddleware.handle.bind(errorsMiddleware));
 };
