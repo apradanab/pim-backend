@@ -33,7 +33,9 @@ describe('Given an instance of the UserController class', () => {
   const controller = new UsersController(repo);
 
   const TEST_PASSWORD = process.env.TEST_PASSWORD || 'defaultTestPassword';
-  jest.spyOn(Auth, 'hash').mockResolvedValue('hashedPassword');
+  const TEST_HASHED_PASSWORD = process.env.TEST_HASHED_PASSWORD || 'defaultHashedPassword';
+
+  jest.spyOn(Auth, 'hash').mockResolvedValue(TEST_HASHED_PASSWORD);
 
   test('Should be an instance of the UsersController class', () => {
     expect(controller).toBeInstanceOf(UsersController);
@@ -59,7 +61,7 @@ describe('Given an instance of the UserController class', () => {
       req.body = { email: 'test@example.com', password: TEST_PASSWORD };
       (repo.searchForLogin as jest.Mock).mockResolvedValue({ 
         id: '1', 
-        password: 'hashedPassword' 
+        password: TEST_HASHED_PASSWORD 
       });
       Auth.compare = jest.fn().mockResolvedValue(false);
 
@@ -82,7 +84,7 @@ describe('Given an instance of the UserController class', () => {
       (repo.searchForLogin as jest.Mock).mockResolvedValue({ 
         id: '1', 
         role: 'USER', 
-        password: 'hashedPassword' 
+        password: TEST_HASHED_PASSWORD 
       });
       jest.spyOn(Auth, 'compare').mockResolvedValue(true);
 
@@ -210,13 +212,13 @@ describe('Given an instance of the UserController class', () => {
     test('Should hash the password and update the user', async () => {
       req.params = { id: '1' };
       req.body = { password: TEST_PASSWORD };
-      (repo.update as jest.Mock).mockResolvedValue({ id: '1', password: 'hashedPassword' });
+      (repo.update as jest.Mock).mockResolvedValue({ id: '1', password: TEST_HASHED_PASSWORD });
 
       await controller.update(req, res, next);
 
       expect(Auth.hash).toHaveBeenCalledWith(TEST_PASSWORD);
-      expect(repo.update).toHaveBeenCalledWith('1', { password: 'hashedPassword' });
-      expect(res.json).toHaveBeenCalledWith({ id: '1', password: 'hashedPassword' });
+      expect(repo.update).toHaveBeenCalledWith('1', { password: TEST_HASHED_PASSWORD });
+      expect(res.json).toHaveBeenCalledWith({ id: '1', password: TEST_HASHED_PASSWORD });
     });
 
     test('Should call next with an error if update fails', async () => {
