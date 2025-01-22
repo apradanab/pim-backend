@@ -4,6 +4,7 @@ import { Auth } from '../services/auth.services';
 import { EmailService } from '../services/email.services';
 import { HttpError } from '../middlewares/errors.middleware';
 import { type Request, type Response } from 'express';
+import 'dotenv/config';
 
 describe('Given an instance of the UserController class', () => {
   const repo: UsersSqlRepo = {
@@ -16,9 +17,11 @@ describe('Given an instance of the UserController class', () => {
 
   jest.spyOn(Auth, 'signJwt').mockReturnValue('token');
   jest.spyOn(Auth, 'verifyJwt').mockReturnValue({ id: '1', role: 'USER' });
-  jest.spyOn(EmailService, 'generateRegistrationEmail').mockReturnValue({ subject: 'Welcome', content: 'Welcome email content' });
+  jest.spyOn(EmailService, 'generateRegistrationEmail').mockReturnValue({ 
+    subject: 'Welcome', 
+    content: 'Welcome email content' 
+  });
   jest.spyOn(EmailService, 'sendEmail').mockResolvedValue();
-  jest.spyOn(Auth, 'hash').mockResolvedValue('hashedPassword');
 
   const req = {} as unknown as Request;
   const res: Response = {
@@ -28,6 +31,9 @@ describe('Given an instance of the UserController class', () => {
   const next = jest.fn();
 
   const controller = new UsersController(repo);
+
+  const TEST_PASSWORD = process.env.TEST_PASSWORD || 'defaultTestPassword';
+  jest.spyOn(Auth, 'hash').mockResolvedValue('hashedPassword');
 
   test('Should be an instance of the UsersController class', () => {
     expect(controller).toBeInstanceOf(UsersController);
@@ -41,7 +47,7 @@ describe('Given an instance of the UserController class', () => {
     });
 
     test('Should call next with an error if user is not found', async () => {
-      req.body = { email: 'test@example.com', password: 'password' };
+      req.body = { email: 'test@example.com', password: TEST_PASSWORD };
       (repo.searchForLogin as jest.Mock).mockResolvedValue(null);
 
       await controller.login(req, res, next);
@@ -50,9 +56,12 @@ describe('Given an instance of the UserController class', () => {
     });
 
     test('Should call next with an error if password is invalid', async () => {
-      req.body = { email: 'test@example.com', password: 'wrongPassword' };
-      (repo.searchForLogin as jest.Mock).mockResolvedValue({ id: '1', password: 'hashedPassword' });
-      jest.spyOn(Auth, 'compare').mockResolvedValue(false);
+      req.body = { email: 'test@example.com', password: TEST_PASSWORD };
+      (repo.searchForLogin as jest.Mock).mockResolvedValue({ 
+        id: '1', 
+        password: 'hashedPassword' 
+      });
+      Auth.compare = jest.fn().mockResolvedValue(false);
 
       await controller.login(req, res, next);
 
@@ -60,7 +69,7 @@ describe('Given an instance of the UserController class', () => {
     });
 
     test('Should call next with an error if an unexpected error occurs', async () => {
-      req.body = { email: 'test@example.com', password: 'password' };
+      req.body = { email: 'test@example.com', password: TEST_PASSWORD };
       (repo.searchForLogin as jest.Mock).mockRejectedValue(new Error('Unexpected Error'));
 
       await controller.login(req, res, next);
@@ -69,9 +78,12 @@ describe('Given an instance of the UserController class', () => {
     })
 
     test('Should return a token if login is successful', async () => {
-      req.body = { email: 'test@example.com', password: 'password' };
-      const hashedPassword = await Auth.hash('password');
-      (repo.searchForLogin as jest.Mock).mockResolvedValue({ id: '1', role: 'USER', password: hashedPassword });
+      req.body = { email: 'test@example.com', password: TEST_PASSWORD };
+      (repo.searchForLogin as jest.Mock).mockResolvedValue({ 
+        id: '1', 
+        role: 'USER', 
+        password: 'hashedPassword' 
+      });
       jest.spyOn(Auth, 'compare').mockResolvedValue(true);
 
       await controller.login(req, res, next);
@@ -99,7 +111,12 @@ describe('Given an instance of the UserController class', () => {
 
     test('Should create and return a new user if data is valid', async () => {
       req.body = { name: 'test', email: 'test@example.com', message: 'Hello' };
-      const newUser = { id: '1', name: 'test', email: 'test@example.com', message: 'Hello' };
+      const newUser = { 
+        id: '1', 
+        name: 'test', 
+        email: 'test@example.com', 
+        message: 'Hello' 
+      };
       (repo.create as jest.Mock).mockResolvedValue(newUser);
       
       await controller.create(req, res, next);
@@ -192,15 +209,14 @@ describe('Given an instance of the UserController class', () => {
 
     test('Should hash the password and update the user', async () => {
       req.params = { id: '1' };
-      req.body = { password: 'newPassword' };
-      const hashedPassword = await Auth.hash('newPassword');
-      (repo.update as jest.Mock).mockResolvedValue({ id: '1', password: hashedPassword });
+      req.body = { password: TEST_PASSWORD };
+      (repo.update as jest.Mock).mockResolvedValue({ id: '1', password: 'hashedPassword' });
 
       await controller.update(req, res, next);
 
-      expect(Auth.hash).toHaveBeenCalledWith('newPassword');
-      expect(repo.update).toHaveBeenCalledWith('1', { password: hashedPassword });
-      expect(res.json).toHaveBeenCalledWith({ id: '1', password: hashedPassword });
+      expect(Auth.hash).toHaveBeenCalledWith(TEST_PASSWORD);
+      expect(repo.update).toHaveBeenCalledWith('1', { password: 'hashedPassword' });
+      expect(res.json).toHaveBeenCalledWith({ id: '1', password: 'hashedPassword' });
     });
 
     test('Should call next with an error if update fails', async () => {

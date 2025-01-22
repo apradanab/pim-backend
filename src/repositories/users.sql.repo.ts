@@ -101,7 +101,7 @@ export class UsersSqlRepo implements WithLoginRepo<User, UserCreateDto> {
     }
 
     try {
-      return this.prisma.user.update({
+      return await this.prisma.user.update({
         where: { id },
         data,
         select,

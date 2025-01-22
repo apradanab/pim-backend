@@ -6,6 +6,16 @@ jest.mock('bcrypt');
 jest.mock('jsonwebtoken');
 
 describe('Given the Auth static class', () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    process.env.SECRET_JWT = 'test secret';
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  })
+
   describe('When the static method hash is called', () => {
     test('Then it should invoke hash from bcrypt', async () => {
       await Auth.hash('test');
@@ -22,15 +32,17 @@ describe('Given the Auth static class', () => {
 
   describe('When the static method signJwt is called', () => {
     test('Then it should invoke sign from jwt', () => {
-      Auth.secret = 'test secret';
       Auth.signJwt({ id: 'test', role: 'test' });
-      expect(jwt.sign).toHaveBeenCalled();
+      expect(jwt.sign).toHaveBeenCalledWith(
+        { id: 'test', role: 'test' },
+        'test secret'
+      );
     });
   });
 
   describe('And the secret is not set in Auth.secret', () => {
     test('Then it should throw an error', () => {
-      Auth.secret = '';
+      process.env.SECRET_JWT = '';
       const result = () => Auth.signJwt({ id: 'test', role: 'test' });
       expect(result).toThrow('JWT secret not set');
     });
@@ -38,15 +50,14 @@ describe('Given the Auth static class', () => {
 
   describe('When the static method verifyJwt is called', () => {
     test('Then it should invoke verify from jwt', () => {
-      Auth.secret = 'test secret';
       Auth.verifyJwt('test');
-      expect(jwt.verify).toHaveBeenCalled();
+      expect(jwt.verify).toHaveBeenCalledWith('test', 'test secret');
     });
   });
 
   describe('And the secret is not set in Auth.secret', () => {
     test('Then it should throw an error', () => {
-      Auth.secret = '';
+      process.env.SECRET_JWT = '';
       const result = () => Auth.verifyJwt('test');
       expect(result).toThrow('JWT secret not set');
     });

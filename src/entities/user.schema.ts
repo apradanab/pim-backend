@@ -5,7 +5,7 @@ import { type UserCreateDto, type UserUpdateDto } from "./user.js";
 export const userCreateDtoSchema = Joi.object<UserCreateDto>({
   name: Joi.string().required(),
   email: Joi.string()
-    .pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
+    .pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
     .required()
     .messages({
     'string.pattern.base': 'Please provide a valid email address.',

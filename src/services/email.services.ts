@@ -24,7 +24,7 @@ export class EmailService {
 
   static generateRegistrationEmail(name: string, userId: string, role: string): { subject: string; content: string } {
     const token = Auth.signJwt({ id: userId, role });
-    const domain = process.env.APP_DOMAIN || 'http://localhost:3000';
+    const domain = process.env.APP_DOMAIN ?? 'http://localhost:3000';
     const link = `${domain}/complete-registration?token=${token}`;
 
     const content = `

@@ -8,6 +8,11 @@ describe('Given a instance of the class AuthInterceptor', () => {
   const interceptor = new AuthInterceptor();
   Auth.verifyJwt = jest.fn().mockReturnValue({ id: '123', role: 'USER' });
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+    Auth.verifyJwt = jest.fn().mockReturnValue({ id: '123', role:'USER' });
+  });
+
   test('Then it should be an instance of the class', () => {
     expect(interceptor).toBeInstanceOf(AuthInterceptor);
   });
@@ -147,20 +152,27 @@ describe('Given a instance of the class AuthInterceptor', () => {
         status: jest.fn().mockReturnThis(),
         send: jest.fn(),
         json: jest.fn(),
-      })
+      });
 
-      test('It should call next with when ownerKey matches the payload', async () => {
+      const createTestContext = (payloadId: string, paramId: string) => {
         const repoWithOwnerKey = {
           readById: jest.fn().mockResolvedValue({ email: 'otheruser@example.com' }),
         } as unknown as Repo<{ id: string; email: string }, unknown>;
-
+        
         const reqWithOwnerKey = {
-          body: { payload: { id: '123', role: 'USER' } },
-          params: { id: '1' },
+          body: { payload: { id: payloadId, role: 'USER' } },
+          params: { id: paramId },
         } as unknown as Request;
 
         const resWithOwnerKey = createMockResponse() as Response;
         const nextWithOwnerKey = jest.fn();
+
+        return { repoWithOwnerKey, reqWithOwnerKey, resWithOwnerKey, nextWithOwnerKey };
+      };
+
+      test('It should call next with when ownerKey matches the payload', async () => {
+        const { repoWithOwnerKey, reqWithOwnerKey, resWithOwnerKey, nextWithOwnerKey } = createTestContext('123', '1');
+
         await interceptor.authorization(repoWithOwnerKey, 'email')(reqWithOwnerKey, resWithOwnerKey, nextWithOwnerKey);
 
         expect(repoWithOwnerKey.readById).toHaveBeenCalledWith('1');
@@ -168,17 +180,8 @@ describe('Given a instance of the class AuthInterceptor', () => {
       });
 
       test('It should call next with error when ownerKey does not match the payload', async () => {
-        const repoWithOwnerKey = {
-          readById: jest.fn().mockResolvedValue({ email: 'otheruser@example.com' }),
-        } as unknown as Repo<{ id: string; email: string }, unknown>;
-
-        const reqWithOwnerKey = {
-          body: { payload: { id: '123', role: 'USER' } },
-          params: { id: '1' },
-        } as unknown as Request;
-
-        const resWithOwnerKey = createMockResponse() as Response;
-        const nextWithOwnerKey = jest.fn();
+        const { repoWithOwnerKey, reqWithOwnerKey, resWithOwnerKey, nextWithOwnerKey } = createTestContext('123', '1');
+        
         await interceptor.authorization(repoWithOwnerKey, 'email')(reqWithOwnerKey, resWithOwnerKey, nextWithOwnerKey);
         
         expect(repoWithOwnerKey.readById).toHaveBeenCalledWith('1');
