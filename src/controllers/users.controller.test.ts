@@ -32,8 +32,8 @@ describe('Given an instance of the UserController class', () => {
 
   const controller = new UsersController(repo);
 
-  const TEST_PASSWORD = process.env.TEST_PASSWORD || 'defaultTestPassword';
-  const TEST_HASHED_PASSWORD = process.env.TEST_HASHED_PASSWORD || 'defaultHashedPassword';
+  const TEST_PASSWORD = process.env.TEST_PASSWORD ?? 'defaultTestPassword';
+  const TEST_HASHED_PASSWORD = process.env.TEST_HASHED_PASSWORD ?? 'defaultHashedPassword';
 
   jest.spyOn(Auth, 'hash').mockResolvedValue(TEST_HASHED_PASSWORD);
 
