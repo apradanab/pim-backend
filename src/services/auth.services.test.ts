@@ -6,7 +6,6 @@ jest.mock('bcrypt');
 jest.mock('jsonwebtoken');
 
 describe('Given the Auth static class', () => {
-  const originalEnv = process.env;
 
   beforeEach(() => {
     process.env.SECRET_JWT = 'test secret';

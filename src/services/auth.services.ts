@@ -8,7 +8,7 @@ export type Payload = {
 
 export class Auth {
   public static get secret(): string {
-    return process.env.SECRET_JWT || '';
+    return process.env.SECRET_JWT ?? '';
   }
 
   static async hash(value: string) {
