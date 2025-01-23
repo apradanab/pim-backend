@@ -75,7 +75,7 @@ export class UsersSqlRepo implements WithLoginRepo<User, UserCreateDto> {
     return user;
   }
 
-  async create(data: UserCreateDto) {
+  async create(data: UserCreateDto): Promise<User> {
     try {
       const newUser = await this.prisma.user.create({
         data: {
