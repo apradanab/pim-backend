@@ -7,7 +7,7 @@ import { dbConnect } from "./tools/db.connect.js";
 const debug = createDebug('PIM:server');
 debug('Starting server');
 
-const port = process.env.PORT ?? 3000;
+const port = process.env.PORT ?? 10000;
 
 const app = createApp();
 const server = createServer(app);

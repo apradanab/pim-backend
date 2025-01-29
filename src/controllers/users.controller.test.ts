@@ -1,3 +1,5 @@
+process.env.SENDGRID_API_KEY = 'mock-sendgrid-api-key';
+
 import { UsersController } from './users.controller';
 import { type UsersSqlRepo } from '../repositories/users.sql.repo';
 import { Auth } from '../services/auth.services';
