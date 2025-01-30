@@ -5,6 +5,9 @@ import tsPlugin from '@typescript-eslint/eslint-plugin';
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   {
+    ignores: ['coverage/', 'node_modules/', 'dist/'],
+  },
+  {
     files: ['**/*.{js,cjs,mjs}'],
     languageOptions: {
       globals: {
