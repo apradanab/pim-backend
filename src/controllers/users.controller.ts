@@ -47,7 +47,9 @@ export class UsersController extends BaseController<User, UserCreateDto> {
     const { error } = userCreateDtoSchema.validate({ name, email, message });
 
     if(error) {
-      next(new HttpError(400, 'Validation Error', error.details.map(d => d.message).join(', ')));
+      next(new HttpError(
+        400, 
+        'Validation Error', error.details.map(d => d.message).join(', ')));
       return;
     }
 

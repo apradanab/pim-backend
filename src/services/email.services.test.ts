@@ -5,23 +5,37 @@ import { Auth } from './auth.services';
 jest.mock('@sendgrid/mail');
 jest.mock('./auth.services', () => ({
   Auth: {
-    signJwt: jest.fn().mockReturnValue('mockend-jwt-token'),
+    signJwt: jest.fn().mockReturnValue('mocked-jwt-token'),
   },
 }));
 
-describe('EmailService', () => {
-  const mockSend = jest.fn();
-  (sgMail.send as jest.Mock) = mockSend;
+const mockSend = jest.fn();
+(sgMail.send as jest.Mock) = mockSend;
 
+describe('EmailService', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('sendEmail', () => {
-    it('should send an email with the provided details', async () => {
+  describe('When SENDGRID_API_KEY is missing', () => {
+    test('Then it should throw an error', async () => {
+      delete process.env.SENDGRID_API_KEY; // Eliminar variable de entorno
+
+      await expect(
+        EmailService.sendEmail('test@example.com', 'Test', '<p>Test<p>')
+      ).rejects.toThrow('SENDGRID_API_KEY is not set in enviroment variables');
+    });
+  });
+
+  describe('sendEmail()', () => {
+    beforeEach(() => {
+      process.env.SENDGRID_API_KEY = 'SG.mock-sendgrid-api-key';
+    });
+
+    test('should send an email with the correct data', async () => {
       const to = 'test@example.com';
       const subject = 'Test Subject';
-      const htmlContent = '<p>Test Email Content<p>';
+      const htmlContent = '<p>Test Email Content</p>';
 
       await EmailService.sendEmail(to, subject, htmlContent);
 
@@ -33,22 +47,21 @@ describe('EmailService', () => {
       });
     });
 
-    it('should throw an error if email sending fails', async () => {
-      const mockSend = jest.fn().mockRejectedValue(new Error('Send error'));
-      sgMail.send = mockSend;
+    test('should throw an error if email sending fails', async () => {
+      mockSend.mockRejectedValue(new Error('Send error'));
 
       const to = 'test@example.com';
       const subject = 'Test Subject';
-      const htmlContent = '<p>Test Email Content<p>';
+      const htmlContent = '<p>Test Email Content</p>';
 
       await expect(EmailService.sendEmail(to, subject, htmlContent)).rejects.toThrow('Error sending email');
       expect(mockSend).toHaveBeenCalled();
     });
   });
 
-  describe('generateRegistrationEmail', () => {
-    it('should generate a registration email with the correct details', () => {
-      const mockSignJwt = jest.fn().mockReturnValue('mockToken');
+  describe('generateRegistrationEmail()', () => {
+    test('should generate a registration email with the correct details', () => {
+      const mockSignJwt = jest.fn().mockReturnValue('mocked-jwt-token');
       Auth.signJwt = mockSignJwt;
 
       const userId = '123';
@@ -59,8 +72,8 @@ describe('EmailService', () => {
 
       expect(result.subject).toBe('Tu cuenta ha sido aprobada');
       expect(result.content).toContain(`<h1>Hola, ${name}</h1>`);
-      expect(result.content).toContain('Haz click para registrarte');
-      expect(result.content).toContain('mockToken');
+      expect(result.content).toContain('Tu cuenta ha sido aprobada. Puedes completar tu registro.');
+      expect(result.content).toContain('mocked-jwt-token');
       expect(mockSignJwt).toHaveBeenCalledWith({ id: userId, role });
     });
   });

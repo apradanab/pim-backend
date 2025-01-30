@@ -3,10 +3,15 @@ import createDebug from 'debug';
 import { Auth } from './auth.services.js';
 
 const debug = createDebug('PIM:email-service');
+
 sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
 export class EmailService {
   static async sendEmail(to: string, subject: string, htmlContent: string) {
+    if (!process.env.SENDGRID_API_KEY) {
+    throw new Error('SENDGRID_API_KEY is not set in enviroment variables');
+    }
+
     try {
       const message = {
         to,
