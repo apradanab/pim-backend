@@ -7,8 +7,15 @@ export type Service = {
   description: string;
   content: string;
   image: string;
-  resources: Resource[];
-  appointments: Appointment[];
+  resources?: Resource[];
+  appointments?: Appointment[];
   createdAt: Date;
   updatedAt: Date;
+};
+
+export type ServiceCreateDto = {
+  title: string;
+  description: string;
+  content: string;
+  image: string;
 };

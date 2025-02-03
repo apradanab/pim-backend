@@ -7,7 +7,7 @@ export type Resource = {
   content: string;
   image: string;
   serviceId: string;
-  service: Service;
+  service?: Service;
   createdAt: Date;
   updatedAt: Date;
 };

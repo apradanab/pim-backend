@@ -8,9 +8,9 @@ export type Appointment = {
   endTime: Date;
   status: 'PENDING' | 'OCCUPIED' | 'COMPLETED' | 'CANCELLED';
   serviceId: string;
-  service: Service;
+  service?: Service;
   cancellationReason?: string;
-  users: AppointmentUser[];
+  users?: AppointmentUser[];
   createdAt: Date;
   updatedAt: Date;
 };
