@@ -130,6 +130,64 @@ describe('Given an instance of the UserController class', () => {
     });
   });
 
+  describe('When calling the replyToGuest method', () => {
+    test('Should call next with an error if message is missing', async () =>{
+      req.params = { id: '1' };
+      req.body = {};
+
+      await controller.replyToGuest(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(new HttpError(400, 'Bad Request', 'Message is required'));
+    });
+
+    test('Should call next with an error if user is not found', async () => {
+      req.params = { id: '1' };
+      req.body = { message: 'Test reply' };
+      (repo.readById as jest.Mock).mockResolvedValue(null);
+
+      await controller.replyToGuest(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(new HttpError(404, 'Not Found', 'Guest user not found'));
+    });
+
+    test('Should call next with an error if user is not a GUEST', async () => {
+      req.params = { id: '1' };
+      req.body = { message: 'Test reply' };
+      (repo.readById as jest.Mock).mockResolvedValue({ id: '1', email: 'test@mail.com', role: 'USER' });
+
+      await controller.replyToGuest(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(new HttpError(404, 'Not Found', 'Guest user not found'));
+    });
+
+    test('Should send an email and return success response if user is a GUEST', async () => {
+      req.params = { id: '1' };
+      req.body = { message: 'Test reply' };
+      (repo.readById as jest.Mock).mockResolvedValue({ id: '1', email: 'test@mail.com', role: 'GUEST' });
+
+      await controller.replyToGuest(req, res, next);
+
+      expect(EmailService.sendEmail).toHaveBeenCalledWith(
+        'test@mail.com',
+        'Respuesta a tu consulta',
+        '<p>Test reply</p>'
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Reply sent succesfully' });
+    });
+
+    test('Should call next with an error if email sending fails', async () => {
+      req.params = { id: '1' };
+      req.body = { message: 'Test reply' };
+      (repo.readById as jest.Mock).mockResolvedValue({ id: '1', email: 'test@mail.com', role: 'GUEST' });
+      (EmailService.sendEmail as jest.Mock).mockRejectedValue(new Error('Email error'));
+
+      await controller.replyToGuest(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(expect.any(Error));
+    });
+  });
+
   describe('When calling the approveUser method', () => {
     test('Should call next with a Not Found error if user is not found', async () => {
       req.params = { id: '1' };
@@ -150,22 +208,40 @@ describe('Given an instance of the UserController class', () => {
       expect(next).toHaveBeenCalledWith(expect.any(Error));
     });
 
-    test('And the user is found, it should approve the user and send an email', async () => {
-      const user = { id: '1', name: 'Test User', email: 'test@example.com'};
+    test('Should generate an email, send it, and return the updated user', async () => {
       req.params = { id: '1' };
+      const user = { id: '1', name: 'Test USer', email: 'test@example.com', role: 'GUEST' };
+      const updatedUser = { ...user, approved: true, role: 'USER' };
+      const emailData = { subject: 'Welcome', content: 'Welcome email content' };
+
       (repo.readById as jest.Mock).mockResolvedValue(user);
-      (repo.update as jest.Mock).mockResolvedValue({ ...user, approved: true, role: 'USER' });
-      
+      (repo.update as jest.Mock).mockResolvedValue(updatedUser);
+      (EmailService.generateRegistrationEmail as jest.Mock).mockReturnValue(emailData);
+      (EmailService.sendEmail as jest.Mock).mockResolvedValue(undefined);
+
       await controller.approveUser(req, res, next);
 
       expect(repo.readById).toHaveBeenCalledWith('1');
       expect(repo.update).toHaveBeenCalledWith('1', { approved: true, role: 'USER' });
-      expect(EmailService.sendEmail).toHaveBeenCalledWith(
-        'test@example.com',
-        'Welcome',
-        'Welcome email content'
-      );
-      expect(res.json).toHaveBeenCalledWith({ ...user, approved: true, role: 'USER' });
+      expect(EmailService.generateRegistrationEmail).toHaveBeenCalledWith(user.name, user.id, user.role);
+      expect(EmailService.sendEmail).toHaveBeenCalledWith(user.email, emailData.subject, emailData.content);
+      expect(res.json).toHaveBeenCalledWith(updatedUser);
+    });
+
+    test('Should call next with an error if email sending fails', async () => {
+      req.params = { id: '1' };
+      const user = { id: '1', name: 'Test User', email: 'test@example.com', role: 'GUEST' };
+      const updatedUser = { ...user, approved: true, role: 'USER' };
+      const emailData = { subject: 'Welcome', content: 'Welcome email content' };
+
+      (repo.readById as jest.Mock).mockResolvedValue(user);
+      (repo.update as jest.Mock).mockResolvedValue(updatedUser);
+      (EmailService.generateRegistrationEmail as jest.Mock).mockReturnValue(emailData);
+      (EmailService.sendEmail as jest.Mock).mockRejectedValue(new Error('Email service error'));
+
+      await controller.approveUser(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(expect.any(Error));
     });
   });
 

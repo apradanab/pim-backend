@@ -62,6 +62,35 @@ export class UsersController extends BaseController<User, UserCreateDto> {
     }
   }
 
+  async replyToGuest(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    const { message } = req.body;
+
+    if(!message) {
+      next(new HttpError(400, 'Bad Request', 'Message is required'));
+      return;
+    }
+
+    try {
+      const user = await this.repo.readById(id);
+
+      if(!user || user.role !== 'GUEST') {
+        next(new HttpError(404, 'Not Found', 'Guest user not found'));
+        return;
+      }
+
+      await EmailService.sendEmail(
+        user.email,
+        'Respuesta a tu consulta',
+        `<p>${message}</p>`
+      );
+
+      res.status(200).json({ message: 'Reply sent succesfully' });
+    } catch(error) {
+      next(error);
+    }
+  }
+
   async approveUser(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
 

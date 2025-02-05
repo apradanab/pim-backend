@@ -13,6 +13,7 @@ describe('Given an instance of the class UsersRouter', () => {
     update: jest.fn(),
     delete: jest.fn(),
     validateRegistration: jest.fn(),
+    replyToGuest: jest.fn(),
   } as unknown as UsersController;
   
   const authInterceptor = {

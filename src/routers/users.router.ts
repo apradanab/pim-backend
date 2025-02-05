@@ -36,6 +36,12 @@ export class UsersRouter {
       controller.approveUser.bind(controller)
     );
 
+    this.router.post('/reply/:id',
+      authInterceptor.authentication.bind(authInterceptor),
+      authInterceptor.isAdmin.bind(authInterceptor),
+      controller.replyToGuest.bind(controller)
+    );
+
     this.router.post('/validate-registration',
       authInterceptor.validateRegistrationToken.bind(authInterceptor),
       controller.validateRegistration.bind(controller)
