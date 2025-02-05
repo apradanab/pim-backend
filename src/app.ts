@@ -6,10 +6,14 @@ import cors from 'cors';
 import { UsersSqlRepo } from './repositories/users.sql.repo.js';
 import { UsersController } from './controllers/users.controller.js';
 import { UsersRouter } from './routers/users.router.js';
+import { ServicesSqlRepo } from './repositories/services.sql.repo.js';
+import { ServicesController } from './controllers/services.controller.js';
+import { ServicesRouter } from './routers/services.router.js';
 import { AuthInterceptor } from './middlewares/auth.interceptor.js';
 import { ErrorsMiddleware } from './middlewares/errors.middleware.js';
 
 const debug = createDebug('PIM:app');
+
 export const createApp = () => {
   debug('Creating app');
   return express();
@@ -34,7 +38,15 @@ export const startApp = (app: Express, prisma: PrismaClient) => {
     usersController,
     authInterceptor
   );
-  app.use("/users", usersRouter.router);
+  app.use('/users', usersRouter.router);
+
+  const servicesRepo = new ServicesSqlRepo(prisma);
+  const servicesController = new ServicesController(servicesRepo);
+  const servicesRouter = new ServicesRouter(
+    servicesController,
+    authInterceptor
+  );
+  app.use('/services', servicesRouter.router);
 
   const errorsMiddleware = new ErrorsMiddleware();
   app.use(errorsMiddleware.handle.bind(errorsMiddleware));
