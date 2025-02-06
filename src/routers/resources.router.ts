@@ -27,7 +27,7 @@ export class ResourcesRouter {
     this.router.patch('/:id',
       authInterceptor.authentication.bind(authInterceptor),
       authInterceptor.isAdmin.bind(authInterceptor),
-      controller.create.bind(controller)
+      controller.update.bind(controller)
     );
 
     this.router.delete('/:id',
