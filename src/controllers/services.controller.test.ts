@@ -1,6 +1,6 @@
 import { ServicesController } from '../controllers/services.controller';
-import { type Repo } from "../repositories/type.repo"
-import { type Service, type ServiceCreateDto } from "../entities/service"
+import { type Repo } from '../repositories/type.repo';
+import { type Service, type ServiceCreateDto } from '../entities/service';
 import { serviceCreateDtoSchema, serviceUpdateDtoSchema } from '../entities/service.schema';
 
 describe('Given an instance of the ServiceController class', () => {

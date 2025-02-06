@@ -9,6 +9,9 @@ import { UsersRouter } from './routers/users.router.js';
 import { ServicesSqlRepo } from './repositories/services.sql.repo.js';
 import { ServicesController } from './controllers/services.controller.js';
 import { ServicesRouter } from './routers/services.router.js';
+import { ResourcesSqlRepo } from './repositories/resources.sql.repo.js';
+import { ResourcesController } from './controllers/resources.controller.js';
+import { ResourcesRouter } from './routers/resources.router.js';
 import { AuthInterceptor } from './middlewares/auth.interceptor.js';
 import { ErrorsMiddleware } from './middlewares/errors.middleware.js';
 
@@ -27,7 +30,7 @@ export const startApp = (app: Express, prisma: PrismaClient) => {
   app.use(express.static('public'));
   
   app.get("/", (_req, res) => {
-    res.status(200).json({ message: "API is running" });
+    res.status(200).json({ message: 'API is running' });
   });
 
   const authInterceptor = new AuthInterceptor();
@@ -47,6 +50,14 @@ export const startApp = (app: Express, prisma: PrismaClient) => {
     authInterceptor
   );
   app.use('/services', servicesRouter.router);
+
+  const resourcesRepo = new ResourcesSqlRepo(prisma);
+  const resourcesController = new ResourcesController(resourcesRepo);
+  const resourcesRouter = new ResourcesRouter(
+    resourcesController,
+    authInterceptor
+  );
+  app.use('/resources', resourcesRouter.router);
 
   const errorsMiddleware = new ErrorsMiddleware();
   app.use(errorsMiddleware.handle.bind(errorsMiddleware));

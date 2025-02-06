@@ -1,8 +1,8 @@
-import { createServer } from "http";
+import { createServer } from 'http';
 import createDebug from 'debug';
 import 'dotenv/config';
 import { createApp, startApp } from './app.js';
-import { dbConnect } from "./tools/db.connect.js";
+import { dbConnect } from './tools/db.connect.js';
 
 const debug = createDebug('PIM:server');
 debug('Starting server');

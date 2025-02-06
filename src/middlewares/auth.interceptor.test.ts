@@ -1,6 +1,6 @@
 import { type Request, type Response } from 'express';
-import { AuthInterceptor } from "./auth.interceptor"
-import { Auth } from "../services/auth.services";
+import { AuthInterceptor } from './auth.interceptor';
+import { Auth } from '../services/auth.services';
 import { HttpError } from './errors.middleware';
 import { type Repo } from '../repositories/type.repo';
 

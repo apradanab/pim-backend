@@ -11,3 +11,11 @@ export type Resource = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type ResourceCreateDto = {
+  title: string;
+  description: string;
+  content: string;
+  image: string;
+  serviceId: string;
+};
