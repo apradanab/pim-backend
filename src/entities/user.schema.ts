@@ -1,5 +1,5 @@
-import Joi from "joi";
-import { type UserCreateDto, type UserUpdateDto } from "./user.js";
+import Joi from 'joi';
+import { type UserCreateDto, type UserUpdateDto } from './user.js';
 
 
 export const userCreateDtoSchema = Joi.object<UserCreateDto>({

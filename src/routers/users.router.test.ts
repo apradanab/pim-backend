@@ -1,6 +1,6 @@
-import { type UsersController } from "../controllers/users.controller"
-import { type AuthInterceptor } from "../middlewares/auth.interceptor";
-import { UsersRouter } from "./users.router";
+import { type UsersController } from '../controllers/users.controller';
+import { type AuthInterceptor } from '../middlewares/auth.interceptor';
+import { UsersRouter } from './users.router';
 
 
 describe('Given an instance of the class UsersRouter', () => {

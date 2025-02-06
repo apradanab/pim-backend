@@ -28,7 +28,14 @@ export class ErrorsMiddleware {
       message: error.message,
     };
 
-    if (error instanceof HttpError) {
+    if (error instanceof Joi.ValidationError) {
+      debug('Validation error', error.message);
+      status = 400;
+      json = {
+        status: '400 Bad Request',
+        message: error.details.map(detail => detail.message).join(', '),
+      };
+    } else if (error instanceof HttpError) {
       debug('Error', error.message);
       status = error.status;
       json = {
@@ -41,13 +48,6 @@ export class ErrorsMiddleware {
       json = {
         status: '403 Forbidden',
         message: error.message,
-      };
-    } else if (error instanceof Joi.ValidationError) {
-      debug('Validation error', error.message);
-      status = 400;
-      json = {
-        status: '400 Bad Request',
-        message: error.details.map(detail => detail.message).join(', '),
       };
     }
 

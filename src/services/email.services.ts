@@ -35,7 +35,7 @@ export class EmailService {
     const content = `
       <h1>Hola, ${name}</h1>
       <p>Tu cuenta ha sido aprobada. Puedes completar tu registro.</p>
-      <p><a href="${link}">Haz click para registrarte</a></p>
+      <p><a href='${link}'>Haz click para registrarte</a></p>
     `
 
     return {

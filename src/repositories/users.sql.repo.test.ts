@@ -1,7 +1,7 @@
 import { UsersSqlRepo } from './users.sql.repo';
 import { HttpError } from '../middlewares/errors.middleware';
 import { type UserCreateDto, type UserUpdateDto } from '../entities/user';
-import { type PrismaClient } from "@prisma/client";
+import { type PrismaClient } from '@prisma/client';
 
 const mockPrisma = {
   user: {
@@ -18,7 +18,7 @@ describe('UsersSqlRepo', () => {
   const repo = new UsersSqlRepo(mockPrisma);
 
   describe('readAll', () => {
-    it('should call prisma.findMany and return users', async () => {
+    test('should call prisma.findMany and return users', async () => {
       const result = await repo.readAll();
       expect(mockPrisma.user.findMany).toHaveBeenCalled();
       expect(result).toEqual([]);
@@ -26,13 +26,13 @@ describe('UsersSqlRepo', () => {
   });
 
   describe('readById', () => {
-    it('should return a user when the ID is valid', async () => {
+    test('should return a user when the ID is valid', async () => {
       const result = await repo.readById('1');
       expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({ where: { id: '1' }, select: expect.any(Object) });
       expect(result).toEqual({ id: '1', name: 'Test User' });
     });
 
-    it('should throw a 404 error if the user in not found', async () => {
+    test('should throw a 404 error if the user in not found', async () => {
       (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
       await expect(repo.readById('2')).rejects.toThrow(
         new HttpError(404, 'Not Found', 'User 2 not found'));
@@ -40,13 +40,13 @@ describe('UsersSqlRepo', () => {
   });
 
   describe('searchForLogin', () => {
-    it('should return a user for valid credentials', async () => {
+    test('should return a user for valid credentials', async () => {
       const result = await repo.searchForLogin('email', 'test@example.com');
       expect(mockPrisma.user.findFirst).toHaveBeenCalledWith({ where: { email: 'test@example.com' }, select: expect.any(Object) });
       expect(result).toEqual({ id: '1', email: 'test@example.com' });
     });
 
-    it('should throw a 404 error for invalid credentials', async () => {
+    test('should throw a 404 error for invalid credentials', async () => {
       (mockPrisma.user.findFirst as jest.Mock).mockResolvedValueOnce(null);
       await expect(repo.searchForLogin('email', 'invalid@example.com')).rejects.toThrow(
         new HttpError(404, 'Not Found', 'Invalid credentials'));
@@ -54,7 +54,7 @@ describe('UsersSqlRepo', () => {
   });
 
   describe('create', () => {
-    it('should create a new user with valid data', async () => {
+    test('should create a new user with valid data', async () => {
       const data: UserCreateDto = { name: 'New User', email: 'newuser@example.com', message: 'Test message' };
       const result = await repo.create(data);
       expect(mockPrisma.user.create).toHaveBeenCalledWith({
@@ -64,7 +64,7 @@ describe('UsersSqlRepo', () => {
       expect(result).toEqual({ id: '1', name: 'Test User' });
     });
 
-    it('should throw an error if creation fails', async () => {
+    test('should throw an error if creation fails', async () => {
       (mockPrisma.user.create as jest.Mock).mockRejectedValueOnce(new Error('Database error'));
       const data: UserCreateDto = { name: 'New User', email: 'newuser@example.com', message: 'Test message' };
       await expect(repo.create(data)).rejects.toThrow('Failed to create user: Database error');
@@ -72,7 +72,7 @@ describe('UsersSqlRepo', () => {
   });
 
   describe('update', () => {
-    it('should update a user with valid data', async () => {
+    test('should update a user with valid data', async () => {
       const data: Partial<UserUpdateDto> = { name: 'Updated User' };
       const result = await repo.update('1', data);
       expect(mockPrisma.user.update).toHaveBeenCalledWith({ 
@@ -83,13 +83,13 @@ describe('UsersSqlRepo', () => {
       expect(result).toEqual({ id: '1', name: 'Updated User' }); 
     });
     
-    it('should throw a 404 error if the user is not found', async () => {
+    test('should throw a 404 error if the user is not found', async () => {
       (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
       await expect(repo.update('2', { name: 'Updated User' })).rejects.toThrow(
         new HttpError(404, 'Not Found', 'User 2 not found'));
     });
 
-    it('should throw an error if prisma.user.update fails', async () => {
+    test('should throw an error if prisma.user.update fails', async () => {
       const mockError = new Error('Database update failed');
       (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce({ id: '1' });
       (mockPrisma.user.update as jest.Mock).mockImplementation(() => {
@@ -103,13 +103,13 @@ describe('UsersSqlRepo', () => {
   });
 
   describe('delete', () => {
-    it('should delete a user with a salid ID', async () => {
+    test('should delete a user with a salid ID', async () => {
       const result = await repo.delete('1');
       expect(mockPrisma.user.delete).toHaveBeenCalledWith({ where: { id: '1'}, select: expect.any(Object) });
       expect(result).toEqual({ id: '1' });
     });
 
-    it('should throw a 404 error if the user is not found', async () => {
+    test('should throw a 404 error if the user is not found', async () => {
       (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
       await expect(repo.delete('2')).rejects.toThrow(
         new HttpError(404, 'Not Found', 'User 2 not found'));

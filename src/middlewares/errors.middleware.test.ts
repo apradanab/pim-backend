@@ -1,5 +1,5 @@
 import { type Request, type Response } from 'express';
-import { ErrorsMiddleware, HttpError } from "./errors.middleware";
+import { ErrorsMiddleware, HttpError } from './errors.middleware';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import Joi from 'joi';
 
@@ -44,20 +44,8 @@ describe('Given an instance of the class ErrorsMiddleware', () => {
     });
   });
 
-  describe('When the handle method is called with a generic Error', () => {
-    test('Then it should set status to 500 and call res.json', () => {
-      const error = new Error('Generic server error');
-      middleware.handle(error, req, res, next);
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({
-        status: '500 Internal Server Error',
-        message: 'Generic server error',
-      });
-    });
-  });
-
   describe('When the handle method is called with a Joi.ValidationError', () => {
-    test('Then it should set status to 400 and call.json', () => {
+    test('Then it should set status to 400 and call res.json', () => {
       const schema = Joi.object({
         email: Joi.string().email().required(),
       });
@@ -67,6 +55,18 @@ describe('Given an instance of the class ErrorsMiddleware', () => {
       expect(res.json).toHaveBeenCalledWith({
         status: '400 Bad Request',
         message: '"email" must be a valid email',
+      });
+    });
+  });
+
+  describe('When the handle method is called with a generic Error', () => {
+    test('Then it should set status to 500 and call res.json', () => {
+      const error = new Error('Generic server error');
+      middleware.handle(error, req, res, next);
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        status: '500 Internal Server Error',
+        message: 'Generic server error',
       });
     });
   });
