@@ -12,7 +12,7 @@ export class UsersRouter {
     readonly controller: UsersController, 
     readonly authInterceptor: AuthInterceptor 
   ) {
-    debug('Instatiated UsersRouter');
+    debug('Instantiated UsersRouter');
 
     this.router.post('/create', controller.create.bind(controller));
 

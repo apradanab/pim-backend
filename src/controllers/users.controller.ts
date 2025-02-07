@@ -13,7 +13,7 @@ const debug = createDebug('PIM:users:controller');
 export class UsersController extends BaseController<User, UserCreateDto> {
   constructor(protected readonly repo: WithLoginRepo<User, UserCreateDto>) {
     super(repo, userCreateDtoSchema, userUpdateDtoSchema);
-    debug('Instantiated user controller');
+    debug('Instantiated UsersController');
   }
 
   async login(req: Request, res: Response, next: NextFunction) {
