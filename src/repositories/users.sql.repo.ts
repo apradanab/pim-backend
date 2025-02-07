@@ -45,7 +45,7 @@ const select = {
 
 export class UsersSqlRepo implements WithLoginRepo<User, UserCreateDto> {
   constructor(private readonly prisma: PrismaClient) {
-    debug('Instantiated users sql repository')
+    debug('Instantiated UsersSqlRepo')
   }
 
   async readAll() {

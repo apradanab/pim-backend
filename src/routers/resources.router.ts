@@ -1,39 +1,17 @@
-import { Router as createRouter } from 'express';
 import createDebug from 'debug';
-import { type ResourcesController } from '../controllers/resources.controller';
-import { type AuthInterceptor } from '../middlewares/auth.interceptor';
+import { BaseRouter } from './base.router.js';
+import { Resource, ResourceCreateDto } from '../entities/resource.js';
+import { type ResourcesController } from '../controllers/resources.controller.js';
+import { type AuthInterceptor } from '../middlewares/auth.interceptor.js';
 
 const debug = createDebug('PIM:resources:router');
 
-export class ResourcesRouter {
-  router = createRouter();
-
+export class ResourcesRouter extends BaseRouter<Resource, ResourceCreateDto>{
   constructor(
     readonly controller: ResourcesController,
     readonly authInterceptor: AuthInterceptor
   ) {
+    super(controller, authInterceptor);
     debug('Instantiated ResourcesRouter');
-
-    this.router.get('/', controller.getAll.bind(controller));
-
-    this.router.get('/:id', controller.getById.bind(controller));
-
-    this.router.post('/',
-      authInterceptor.authentication.bind(authInterceptor),
-      authInterceptor.isAdmin.bind(authInterceptor),
-      controller.create.bind(controller)
-    );
-
-    this.router.patch('/:id',
-      authInterceptor.authentication.bind(authInterceptor),
-      authInterceptor.isAdmin.bind(authInterceptor),
-      controller.update.bind(controller)
-    );
-
-    this.router.delete('/:id',
-      authInterceptor.authentication.bind(authInterceptor),
-      authInterceptor.isAdmin.bind(authInterceptor),
-      controller.delete.bind(controller)
-    );
   }
 }

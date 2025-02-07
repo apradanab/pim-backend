@@ -9,6 +9,6 @@ const debug = createDebug('PIM:services:controller');
 export class ServicesController extends BaseController<Service, ServiceCreateDto> {
   constructor(protected readonly repo: Repo<Service, ServiceCreateDto>) {
     super(repo, serviceCreateDtoSchema, serviceUpdateDtoSchema);
-    debug('Instantiated service controller');
+    debug('Instantiated ServicesController');
   }
 }

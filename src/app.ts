@@ -29,7 +29,7 @@ export const startApp = (app: Express, prisma: PrismaClient) => {
   app.use(express.json());
   app.use(express.static('public'));
   
-  app.get("/", (_req, res) => {
+  app.get('/', (_req, res) => {
     res.status(200).json({ message: 'API is running' });
   });
 
