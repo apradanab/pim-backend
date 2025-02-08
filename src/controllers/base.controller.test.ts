@@ -79,8 +79,8 @@ describe('BaseController', () => {
   });
 
   describe('create method', () => {
-    test('should call repo.create and return data', async () => {
-      req.body = { name: 'Test' };
+    test('should exclude payload, call repo.create and return data', async () => {
+      req.body = { name: 'Test', payload: 'should be removed' };
       (repo.create as jest.Mock).mockResolvedValue({ id: '1', name: 'Test' });
       await controller.create(req, res, next);
       expect(repo.create).toHaveBeenCalledWith({ name: 'Test' });
@@ -109,9 +109,9 @@ describe('BaseController', () => {
   });
 
   describe('update method', () => {
-    test('should call repo.update and return data', async () => {
+    test('should exclude payload, call repo.update and return data', async () => {
       req.params = { id: '1' };
-      req.body = { name: 'Updated Test' };
+      req.body = { name: 'Updated Test', payload: 'should be removed' };
       (repo.update as jest.Mock).mockResolvedValue({ id: '1', name: 'Updated Test' });
       await controller.update(req, res, next);
       expect(repo.update).toHaveBeenCalledWith('1', { name: 'Updated Test' });
