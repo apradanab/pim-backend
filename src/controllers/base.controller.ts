@@ -34,9 +34,10 @@ export abstract class BaseController<T, C> {
   }
 
   async create(req: Request, res: Response, next: NextFunction) {
-    const data = req.body as C;
+    const { payload, ...rawData} = req.body as C & { payload?: unknown };
+    const data = rawData as C;
+
     const { error } = this.validateCreateDtoSchema.validate(data);
-    
     if(error) {
       next(error);
       return;
@@ -52,16 +53,17 @@ export abstract class BaseController<T, C> {
 
   async update(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
-    const data = req.body as Partial<C>;
-    const { error } = this.validateUpdateDtoSchema.validate(data);
+    const body = req.body as Partial<C> & { payload?: unknown };
+    const { payload, ...data} = body;
 
+    const { error } = this.validateUpdateDtoSchema.validate(data);
     if(error) {
       next(error);
       return;
     }
 
     try {
-      const result = await this.repo.update(id, data);
+      const result = await this.repo.update(id, data as Partial<C>);
       res.json(result);
     } catch(error) {
       next(error);
