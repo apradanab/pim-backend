@@ -6,6 +6,6 @@ export type AppointmentUser = {
   appointmentId: string;
   userId: string;
   createdAt: Date;
-  appointment: Partial<Appointment>;
-  user: Partial<User>;
+  appointment?: Partial<Appointment>;
+  user?: Partial<User>;
 };
