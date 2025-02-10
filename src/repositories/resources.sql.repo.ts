@@ -4,7 +4,7 @@ import { type Repo } from './type.repo.js';
 import { ResourceCreateDto, type Resource } from '../entities/resource.js';
 import { HttpError } from '../middlewares/errors.middleware.js';
 
-const debug = createDebug('PIM:resources:repo');
+const debug = createDebug('PIM:resources:repo:sql');
 
 const select = {
   id: true,

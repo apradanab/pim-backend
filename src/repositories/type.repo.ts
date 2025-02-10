@@ -6,6 +6,10 @@ export type Repo<T, C> = {
   delete(id: string): Promise<T>;
 };
 
-export type WithLoginRepo<T,C> = Repo<T, C> & {
+export type WithLoginRepo<T, C> = Repo<T, C> & {
   searchForLogin(key: 'email', value: string): Promise<Partial<T>>;
+};
+
+export type WithAppointmentFeatures<T, C> = Repo<T, C> & {
+  approveCancellation(id: string): Promise<T>;
 };

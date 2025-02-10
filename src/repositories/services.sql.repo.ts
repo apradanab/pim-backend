@@ -4,7 +4,7 @@ import { type Repo } from './type.repo.js';
 import { type ServiceCreateDto, type Service } from '../entities/service.js';
 import { HttpError } from '../middlewares/errors.middleware.js';
 
-const debug = createDebug('PIM:services:repo');
+const debug = createDebug('PIM:services:repo:sql');
 
 const select = {
   id: true,
