@@ -10,7 +10,7 @@ export type Appointment = {
   serviceId: string;
   service?: Partial<Service>;
   notes?: string | null;
-  AdminNotes?: string;
+  adminNotes?: string | null;
   users?: AppointmentUser[];
   createdAt: Date;
   updatedAt: Date;
@@ -22,9 +22,10 @@ export type AppointmentCreateDto = {
   endTime: Date;
   serviceId: string;
   notes?: string;
+  adminNotes?: string;
 };
 
 export type AppointmentUpdateDto = Partial<AppointmentCreateDto> & {
   status?: 'PENDING' | 'OCCUPIED' | 'COMPLETED' | 'CANCELLED';
-  cancellationReason?: string;
+  notes?: string;
 };

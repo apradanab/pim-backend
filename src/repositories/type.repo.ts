@@ -11,5 +11,5 @@ export type WithLoginRepo<T, C> = Repo<T, C> & {
 };
 
 export type WithAppointmentFeatures<T, C> = Repo<T, C> & {
-  approveCancellation(id: string): Promise<T>;
+  approveCancellation(id: string, newStatus: 'AVAILABLE' | 'CANCELLED'): Promise<T>;
 };
