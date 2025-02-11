@@ -6,12 +6,15 @@ export const appointmentCreateDtoSchema = Joi.object<AppointmentCreateDto>({
   startTime: Joi.date().required(),
   endTime: Joi.date().greater(Joi.ref('startTime')).required(),
   serviceId: Joi.string().uuid().required(),
+  notes: Joi.string().optional(),
+  adminNotes: Joi.string().optional(),
 });
 
 export const appointmentUpdateDtoSchema = Joi.object<AppointmentUpdateDto>({
   status: Joi.string()
-    .valid('PENDING', 'OCCUPIED', 'COMPLETED', 'CANCELLED')
+    .valid( 'AVAILABLE', 'PENDING', 'OCCUPIED', 'COMPLETED', 'CANCELLED')
     .optional(),
-  cancellationReason: Joi.string()
+  notes: Joi.string()
     .when('status', { is: 'CANCELLED', then: Joi.required() }),
+  adminNotes: Joi.string().optional(),
 });
