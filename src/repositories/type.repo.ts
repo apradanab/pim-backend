@@ -1,3 +1,5 @@
+import { AppointmentUpdateDto } from "../entities/appointment.js";
+
 export type Repo<T, C> = {
   readAll(): Promise<T[]>;
   readById(id: string): Promise<T>;
@@ -11,5 +13,9 @@ export type WithLoginRepo<T, C> = Repo<T, C> & {
 };
 
 export type WithAppointmentFeatures<T, C> = Repo<T, C> & {
+  update(id: string, data: Partial<AppointmentUpdateDto>): Promise<T>;
+  approveAppointment(id: string): Promise<T>;
+  assignAppointmentToUser(appointmentId: string, userId: string): Promise<T>;
   approveCancellation(id: string, newStatus: 'AVAILABLE' | 'CANCELLED'): Promise<T>;
+  completePastAppointments(): Promise<void>;
 };
