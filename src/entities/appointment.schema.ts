@@ -15,6 +15,7 @@ export const appointmentUpdateDtoSchema = Joi.object<AppointmentUpdateDto>({
     .valid( 'AVAILABLE', 'PENDING', 'OCCUPIED', 'COMPLETED', 'CANCELLED')
     .optional(),
   notes: Joi.string()
+    .allow(null, '')
     .when('status', { is: 'CANCELLED', then: Joi.required() }),
-  adminNotes: Joi.string().optional(),
+  adminNotes: Joi.string().allow(null, ''),
 });

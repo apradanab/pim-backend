@@ -2,7 +2,6 @@ import { AppointmentsSqlRepo } from './appointments.sql.repo';
 import { HttpError } from '../middlewares/errors.middleware';
 import { type AppointmentCreateDto, type AppointmentUpdateDto } from '../entities/appointment';
 import { type PrismaClient } from '@prisma/client';
-import { count } from 'console';
 
 const mockPrisma = {
   appointment: {
