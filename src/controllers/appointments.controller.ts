@@ -14,18 +14,29 @@ export class AppointmentController extends BaseController<Appointment, Appointme
     debug('Instantiated AppointmentsController');
   }
 
+  async getByUser(req: Request, res: Response, next: NextFunction) {
+    const { userId } = req.params;
+
+    try {
+      const appointments = await this.repo.readByUser(userId);
+      res.json(appointments);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const { payload, ...data } = req.body as AppointmentCreateDto & { payload?: unknown };
 
       const appointments = await this.repo.readAll();
-      const conflitingAppointment = appointments.find(appt =>
+      const conflictingAppointment = appointments.find(appt =>
         appt.date.getTime() === data.date.getTime() &&
         appt.startTime.getTime() < data.endTime.getTime() &&
         appt.endTime.getTime() > data.startTime.getTime()
       );
 
-      if (conflitingAppointment) {
+      if (conflictingAppointment) {
         throw new HttpError(400, 'Bad Request', 'Appointment time conflicts with another booking.');
       }
 
@@ -37,17 +48,16 @@ export class AppointmentController extends BaseController<Appointment, Appointme
 
   async update(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
-    const { payload, ...data } = req.body as Partial<AppointmentUpdateDto> & { payload?: unknown };
+    const { payload, ...data } = req.body as Partial<AppointmentUpdateDto> & { payload?: { role: string } };
 
     try {
       const appointment = await this.repo.readById(id);
       if (!appointment) throw new HttpError(404, 'Not Found', `Appointment ${id} not found`);
 
-      if (data.status === 'CANCELLED' && !data.notes) {
-        throw new HttpError(400, 'Bad Request', 'Cancellation reason is required to cancel an appointment');
-      }
+      const userRole = payload?.role ?? 'USER';
 
-      res.json(await this.repo.update(id, data));
+      const updatedAppointment = await this.repo.update(id, data, userRole);
+      res.json(updatedAppointment);
     } catch (error) {
       next(error);
     }
@@ -83,7 +93,8 @@ export class AppointmentController extends BaseController<Appointment, Appointme
     }
 
     try {
-      const result = await this.repo.update(id, { status: 'PENDING', notes });
+      const updateData: Partial<AppointmentUpdateDto> = { status: 'PENDING', notes };
+      const result = await this.repo.update(id, updateData);
       res.status(200).json(result);
     } catch (error) {
       next(error);
