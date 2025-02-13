@@ -30,25 +30,35 @@ describe('Given an instance of the AppointmentController class', () => {
   });
 
   describe('When calling create method', () => {
-    test('Should return error if appointment conflicts with another', async () => {
-      req.body = { 
-        date: new Date('2025-02-12'),
-        startTime: new Date('2025-02-12T10:00:00.000Z'),
-        endTime: new Date('2025-02-12T11:00:00.000Z'),
-        serviceId: '1', 
-      } as AppointmentCreateDto;
+    const mockAppointment = {
+      date: new Date('2025-02-12'),
+      startTime: new Date('2025-02-12T10:00:00.000Z'),
+      endTime: new Date('2025-02-12T11:00:00.000Z'),
+    };
 
-      (repo.readAll as jest.Mock).mockResolvedValue([
-        { 
-          id: '99',
-          date: new Date('2025-02-12'),
-          startTime: new Date('2025-02-12T10:30:00.000Z'),
-          endTime: new Date('2025-02-12T11:30:00.000Z'),
-          serviceId: '1',
-          status: 'OCCUPIED',
-          createdAt: new Date(),
-          updatedAt: new Date(), 
-        }] as Appointment[]);
+    const mockConflictAppointment = {
+      id: '99',
+      date: new Date('2025-02-12'),
+      startTime: new Date('2025-02-12T10:30:00.000Z'),
+      endTime: new Date('2025-02-12T11:30:00.000Z'),
+      serviceId: '1',
+      status: 'OCCUPIED',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const mockRequest = (serviceId: string): AppointmentCreateDto => ({
+      ...mockAppointment,
+      serviceId,
+    });
+
+    const mockRepoWithConflict = (serviceId: string): Appointment[] => [
+      { ...mockConflictAppointment, serviceId, status: 'OCCUPIED' },
+    ];
+    
+    test('Should return error if appointment conflicts with another', async () => {
+      req.body = mockRequest('1');
+      (repo.readAll as jest.Mock).mockResolvedValue(mockRepoWithConflict('1'));
 
       await controller.create(req, res, next);
 
@@ -58,25 +68,8 @@ describe('Given an instance of the AppointmentController class', () => {
 
     test('Should return error if appointment conflicts due to overlapping times', async () => {
       const next: jest.Mock = jest.fn();
-
-      req.body = { 
-        date: new Date('2025-02-12'),
-        startTime: new Date('2025-02-12T10:00:00.000Z'),
-        endTime: new Date('2025-02-12T11:00:00.000Z'),
-        serviceId: '2',
-      } as AppointmentCreateDto;
-
-      (repo.readAll as jest.Mock).mockResolvedValue([
-        { 
-          id: '99',
-          date: new Date('2025-02-12'),
-          startTime: new Date('2025-02-12T10:30:00.000Z'), 
-          endTime: new Date('2025-02-12T11:30:00.000Z'),
-          serviceId: '99',
-          status: 'OCCUPIED',
-          createdAt: new Date(),
-          updatedAt: new Date(), 
-        }] as Appointment[]);
+      req.body = mockRequest('1');
+      (repo.readAll as jest.Mock).mockResolvedValue(mockRepoWithConflict('1'));
       
       await controller.create(req, res, next);
 
@@ -87,9 +80,7 @@ describe('Given an instance of the AppointmentController class', () => {
     test('Should create and return new appointment if valid', async () => {
       const newAppointment: Appointment = {
         id: '123',
-        date: new Date('2025-02-12'),
-        startTime: new Date('2025-02-12T10:00:00.000Z'),
-        endTime: new Date('2025-02-12T11:00:00.000Z'),
+        ...mockAppointment,
         serviceId: '1',
         status: 'PENDING',
         createdAt: new Date(),
