@@ -31,9 +31,11 @@ describe('Given an instance of the AppointmentController class', () => {
   });
 
   describe('When calling getByUser method', () => {
-    test('Should return appointments for a user', async () => {
-      req.params = {  userId: 'user123' };
+    beforeEach(() => {
+      req.params = { userId: 'user123' };
+    });
 
+    test('Should return appointments for a user', async () => {
       const mockAppointments: Appointment[] = [
         {
           id: '1',
@@ -55,8 +57,6 @@ describe('Given an instance of the AppointmentController class', () => {
     });
 
     test('Should handle errors when fetching user appointments', async () => {
-      req.params = { userId: 'user123' };
-
       (repo.readByUser as jest.Mock).mockRejectedValue(new Error('Database error'));
 
       await controller.getByUser(req, res, next);
