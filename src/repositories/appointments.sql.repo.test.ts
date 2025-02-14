@@ -74,8 +74,16 @@ describe('AppointmentSqlRepo', () => {
   describe('update', () => {
     test('should update an appointment successfully', async () => {
       const data: AppointmentUpdateDto = { status: 'CANCELLED', notes: 'User requested cancellation' };
-      const result = await repo.update('1', data);
-      expect(mockPrisma.appointment.update).toHaveBeenCalledWith({ where: { id: '1' }, data, select: expect.any(Object) });
+      const expectedData = { notes: data.notes };
+
+      const result = await repo.update('1', data, 'USER');
+
+      expect(mockPrisma.appointment.update).toHaveBeenCalledWith({
+        where: { id: '1' },
+        data: expectedData,
+        select: expect.any(Object),
+      });
+      
       expect(result).toEqual({ id: '1', status: 'OCCUPIED' });
     });
 

@@ -13,7 +13,8 @@ export type WithLoginRepo<T, C> = Repo<T, C> & {
 };
 
 export type WithAppointmentFeatures<T, C> = Repo<T, C> & {
-  update(id: string, data: Partial<AppointmentUpdateDto>): Promise<T>;
+  readByUser(userId: string): Promise<T[]>;
+  update(id: string, data: Partial<AppointmentUpdateDto>, userRole: string): Promise<T>;
   approveAppointment(id: string): Promise<T>;
   assignAppointmentToUser(appointmentId: string, userId: string): Promise<T>;
   approveCancellation(id: string, newStatus: 'AVAILABLE' | 'CANCELLED'): Promise<T>;

@@ -76,11 +76,15 @@ export class AppointmentsSqlRepo implements WithAppointmentFeatures<Appointment,
     });
   }
 
-  async update(id: string, data: AppointmentUpdateDto): Promise<Appointment> {
+  async update(id: string, data: AppointmentUpdateDto, userRole: string = 'USER'): Promise<Appointment> {
     const appointment = await this.prisma.appointment.findUnique({ where: { id }, select });
 
     if (!appointment) {
       throw new HttpError(404, 'Not Found', `Appointment ${id} not found`);
+    }
+
+    if (userRole !== 'ADMIN') {
+      data = { notes: data.notes };
     }
 
     return this.prisma.appointment.update({

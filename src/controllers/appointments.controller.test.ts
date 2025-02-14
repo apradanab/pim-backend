@@ -8,6 +8,7 @@ describe('Given an instance of the AppointmentController class', () => {
   const repo: WithAppointmentFeatures<Appointment, AppointmentCreateDto> = {
     readAll: jest.fn(),
     readById: jest.fn(),
+    readByUser: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
     assignAppointmentToUser: jest.fn(),
@@ -27,6 +28,41 @@ describe('Given an instance of the AppointmentController class', () => {
 
   test('Should be an instance of AppointmentController', () => {
     expect(controller).toBeInstanceOf(AppointmentController);
+  });
+
+  describe('When calling getByUser method', () => {
+    beforeEach(() => {
+      req.params = { userId: 'user123' };
+    });
+
+    test('Should return appointments for a user', async () => {
+      const mockAppointments: Appointment[] = [
+        {
+          id: '1',
+          date: new Date('2025-02-12'),
+          startTime: new Date('2025-02-12T10:00:00.000Z'),
+          endTime: new Date('2025-02-12T11:00:00.000Z'),
+          serviceId: 'service1',
+          status: 'OCCUPIED',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+      (repo.readByUser as jest.Mock).mockResolvedValue(mockAppointments);
+
+      await controller.getByUser(req, res, next);
+
+      expect(repo.readByUser).toHaveBeenCalledWith('user123');
+      expect(res.json).toHaveBeenCalledWith(mockAppointments);
+    });
+
+    test('Should handle errors when fetching user appointments', async () => {
+      (repo.readByUser as jest.Mock).mockRejectedValue(new Error('Database error'));
+
+      await controller.getByUser(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(expect.any(Error));
+    });
   });
 
   describe('When calling create method', () => {
@@ -57,6 +93,7 @@ describe('Given an instance of the AppointmentController class', () => {
     ];
     
     test('Should return error if appointment conflicts with another', async () => {
+      const next = jest.fn();
       req.body = mockRequest('1');
       (repo.readAll as jest.Mock).mockResolvedValue(mockRepoWithConflict('1'));
 
@@ -108,6 +145,17 @@ describe('Given an instance of the AppointmentController class', () => {
   });
 
   describe('When calling update method', () => {
+    const updatedAppointment: Appointment = {
+      id: '1',
+      date: new Date('2025-02-12'),
+      startTime: new Date('2025-02-12T10:00:00.000Z'),
+      endTime: new Date('2025-02-12T11:00:00.000Z'),
+      serviceId: '1',
+      status: 'OCCUPIED',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
     test('Should return error if appointment not found', async () => {
       req.params = { id: '1' };
       req.body = { status: 'CANCELLED' } as Partial<AppointmentUpdateDto>;
@@ -120,18 +168,7 @@ describe('Given an instance of the AppointmentController class', () => {
 
     test('Should update and return appointment if valid', async () => {
       req.params = { id: '1' };
-      const updatedAppointment: Appointment = {
-        id: '1',
-        date: new Date('2025-02-12'),
-        startTime: new Date('2025-02-12T10:00:00.000Z'),
-        endTime: new Date('2025-02-12T11:00:00.000Z'),
-        serviceId: '1',
-        status: 'OCCUPIED',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      req.body = { status: 'OCCUPIED' } as Partial<AppointmentUpdateDto>;
+      req.body = { status: 'OCCUPIED', payload: { role: 'ADMIN' } } as Partial<AppointmentUpdateDto>;
       (repo.readById as jest.Mock).mockResolvedValue(updatedAppointment);
       (repo.update as jest.Mock).mockResolvedValue(updatedAppointment);
 
@@ -148,6 +185,17 @@ describe('Given an instance of the AppointmentController class', () => {
       await controller.update(req, res, next);
 
       expect(next).toHaveBeenCalledWith(expect.any(HttpError));
+    });
+
+    test('Should update appointment with default user role if payload is missing', async () => {
+      req.params = { id: '1' };
+      req.body = { status: 'OCCUPIED' } as Partial<AppointmentUpdateDto>;
+      (repo.readById as jest.Mock).mockResolvedValue(updatedAppointment);
+      (repo.update as jest.Mock).mockResolvedValue(updatedAppointment);
+
+      await controller.update(req, res, next);
+
+      expect(res.json).toHaveBeenCalledWith(updatedAppointment);
     });
   });
 
