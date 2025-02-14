@@ -12,6 +12,9 @@ import { ServicesRouter } from './routers/services.router.js';
 import { ResourcesSqlRepo } from './repositories/resources.sql.repo.js';
 import { ResourcesController } from './controllers/resources.controller.js';
 import { ResourcesRouter } from './routers/resources.router.js';
+import { AppointmentsSqlRepo } from './repositories/appointments.sql.repo.js';
+import { AppointmentsController } from './controllers/appointments.controller.js';
+import { AppointmentsRouter } from './routers/appointments.router.js';
 import { AuthInterceptor } from './middlewares/auth.interceptor.js';
 import { ErrorsMiddleware } from './middlewares/errors.middleware.js';
 
@@ -58,6 +61,15 @@ export const startApp = (app: Express, prisma: PrismaClient) => {
     authInterceptor
   );
   app.use('/resources', resourcesRouter.router);
+
+  const appointmentsRepo = new AppointmentsSqlRepo(prisma);
+  const appointmentsController = new AppointmentsController(appointmentsRepo);
+  const appointmentsRouter = new AppointmentsRouter(
+    appointmentsController,
+    authInterceptor,
+    appointmentsRepo
+  );
+  app.use('/appointments', appointmentsRouter.router);
 
   const errorsMiddleware = new ErrorsMiddleware();
   app.use(errorsMiddleware.handle.bind(errorsMiddleware));

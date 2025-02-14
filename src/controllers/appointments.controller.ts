@@ -8,7 +8,7 @@ import { HttpError } from '../middlewares/errors.middleware.js';
 
 const debug = createDebug('PIM:appointments:controller');
 
-export class AppointmentController extends BaseController<Appointment, AppointmentCreateDto> {
+export class AppointmentsController extends BaseController<Appointment, AppointmentCreateDto> {
   constructor(protected readonly repo: WithAppointmentFeatures<Appointment, AppointmentCreateDto>) {
     super(repo, appointmentCreateDtoSchema, appointmentUpdateDtoSchema);
     debug('Instantiated AppointmentsController');

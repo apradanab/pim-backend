@@ -1,4 +1,4 @@
-import { AppointmentController } from './appointments.controller';
+import { AppointmentsController } from './appointments.controller';
 import { type WithAppointmentFeatures } from '../repositories/type.repo';
 import { type Appointment, type AppointmentCreateDto, type AppointmentUpdateDto } from '../entities/appointment';
 import { HttpError } from '../middlewares/errors.middleware';
@@ -24,10 +24,10 @@ describe('Given an instance of the AppointmentController class', () => {
   } as unknown as Response;
   const next: NextFunction = jest.fn();
 
-  const controller = new AppointmentController(repo);
+  const controller = new AppointmentsController(repo);
 
   test('Should be an instance of AppointmentController', () => {
-    expect(controller).toBeInstanceOf(AppointmentController);
+    expect(controller).toBeInstanceOf(AppointmentsController);
   });
 
   describe('When calling getByUser method', () => {
