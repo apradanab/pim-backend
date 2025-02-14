@@ -145,7 +145,18 @@ describe('Given an instance of the AppointmentController class', () => {
   });
 
   describe('When calling update method', () => {
-        test('Should return error if appointment not found', async () => {
+    const updatedAppointment: Appointment = {
+      id: '1',
+      date: new Date('2025-02-12'),
+      startTime: new Date('2025-02-12T10:00:00.000Z'),
+      endTime: new Date('2025-02-12T11:00:00.000Z'),
+      serviceId: '1',
+      status: 'OCCUPIED',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    test('Should return error if appointment not found', async () => {
       req.params = { id: '1' };
       req.body = { status: 'CANCELLED' } as Partial<AppointmentUpdateDto>;
       (repo.readById as jest.Mock).mockResolvedValue(null);
@@ -158,18 +169,6 @@ describe('Given an instance of the AppointmentController class', () => {
     test('Should update and return appointment if valid', async () => {
       req.params = { id: '1' };
       req.body = { status: 'OCCUPIED', payload: { role: 'ADMIN' } } as Partial<AppointmentUpdateDto>;
-
-      const updatedAppointment: Appointment = {
-        id: '1',
-        date: new Date('2025-02-12'),
-        startTime: new Date('2025-02-12T10:00:00.000Z'),
-        endTime: new Date('2025-02-12T11:00:00.000Z'),
-        serviceId: '1',
-        status: 'OCCUPIED',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
       (repo.readById as jest.Mock).mockResolvedValue(updatedAppointment);
       (repo.update as jest.Mock).mockResolvedValue(updatedAppointment);
 
@@ -190,19 +189,7 @@ describe('Given an instance of the AppointmentController class', () => {
 
     test('Should update appointment with default user role if payload is missing', async () => {
       req.params = { id: '1' };
-      req.body = { status: 'OCCUPIED' } as Partial<AppointmentUpdateDto>; // Sin payload
-
-      const updatedAppointment: Appointment = {
-        id: '1',
-        date: new Date('2025-02-12'),
-        startTime: new Date('2025-02-12T10:00:00.000Z'),
-        endTime: new Date('2025-02-12T11:00:00.000Z'),
-        serviceId: '1',
-        status: 'OCCUPIED',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
+      req.body = { status: 'OCCUPIED' } as Partial<AppointmentUpdateDto>;
       (repo.readById as jest.Mock).mockResolvedValue(updatedAppointment);
       (repo.update as jest.Mock).mockResolvedValue(updatedAppointment);
 
