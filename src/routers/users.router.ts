@@ -2,6 +2,7 @@ import { Router as createRouter } from 'express';
 import createDebug from 'debug';
 import { type UsersController } from '../controllers/users.controller.js';
 import { type AuthInterceptor } from '../middlewares/auth.interceptor.js';
+import { type FilesInterceptor } from '../middlewares/files.interceptor.js';
 
 const debug = createDebug('PIM:users:router')
 
@@ -10,7 +11,8 @@ export class UsersRouter {
 
   constructor( 
     readonly controller: UsersController, 
-    readonly authInterceptor: AuthInterceptor 
+    readonly authInterceptor: AuthInterceptor,
+    readonly filesInterceptor: FilesInterceptor
   ) {
     debug('Instantiated UsersRouter');
 
@@ -49,6 +51,8 @@ export class UsersRouter {
 
     this.router.patch('/:id',
       authInterceptor.authentication.bind(authInterceptor),
+      filesInterceptor.singleFile('avatar'),
+      filesInterceptor.cloudinaryUpload.bind(filesInterceptor),
       controller.update.bind(controller)
     );
 

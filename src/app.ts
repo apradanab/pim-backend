@@ -15,6 +15,9 @@ import { ResourcesRouter } from './routers/resources.router.js';
 import { AppointmentsSqlRepo } from './repositories/appointments.sql.repo.js';
 import { AppointmentsController } from './controllers/appointments.controller.js';
 import { AppointmentsRouter } from './routers/appointments.router.js';
+import { FilesInterceptor } from './middlewares/files.interceptor.js';
+import { FilesRouter } from './routers/files.router.js';
+import { FilesController } from './controllers/files.controller.js';
 import { AuthInterceptor } from './middlewares/auth.interceptor.js';
 import { ErrorsMiddleware } from './middlewares/errors.middleware.js';
 
@@ -27,6 +30,7 @@ export const createApp = () => {
 
 export const startApp = (app: Express, prisma: PrismaClient) => {
   debug('Starting app');
+
   app.use(morgan('dev'));
   app.use(cors());
   app.use(express.json());
@@ -37,12 +41,14 @@ export const startApp = (app: Express, prisma: PrismaClient) => {
   });
 
   const authInterceptor = new AuthInterceptor();
+  const filesInterceptor = new FilesInterceptor();
 
   const usersRepo = new UsersSqlRepo(prisma);
   const usersController = new UsersController(usersRepo);
   const usersRouter = new UsersRouter(
     usersController,
-    authInterceptor
+    authInterceptor,
+    filesInterceptor
   );
   app.use('/users', usersRouter.router);
 
@@ -50,7 +56,8 @@ export const startApp = (app: Express, prisma: PrismaClient) => {
   const servicesController = new ServicesController(servicesRepo);
   const servicesRouter = new ServicesRouter(
     servicesController,
-    authInterceptor
+    authInterceptor,
+    filesInterceptor
   );
   app.use('/services', servicesRouter.router);
 
@@ -58,7 +65,8 @@ export const startApp = (app: Express, prisma: PrismaClient) => {
   const resourcesController = new ResourcesController(resourcesRepo);
   const resourcesRouter = new ResourcesRouter(
     resourcesController,
-    authInterceptor
+    authInterceptor,
+    filesInterceptor
   );
   app.use('/resources', resourcesRouter.router);
 
@@ -70,6 +78,10 @@ export const startApp = (app: Express, prisma: PrismaClient) => {
     appointmentsRepo
   );
   app.use('/appointments', appointmentsRouter.router);
+
+  const filesController = new FilesController();
+  const filesRouter = new FilesRouter(filesController, filesInterceptor);
+  app.use('/files', filesRouter.router);
 
   const errorsMiddleware = new ErrorsMiddleware();
   app.use(errorsMiddleware.handle.bind(errorsMiddleware));
