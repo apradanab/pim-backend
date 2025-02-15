@@ -20,7 +20,7 @@ export class FilesInterceptor {
       limits: {
         fileSize: 8 * 1024 * 1024,
       },
-     }).single(fieldName);
+    }).single(fieldName);
 
     return (req: Request, res: Response, next: NextFunction) => {
       debug(`Uploading single file: ${fieldName}`);
