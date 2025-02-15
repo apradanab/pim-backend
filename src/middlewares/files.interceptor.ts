@@ -13,8 +13,14 @@ export class FilesInterceptor {
 
   singleFile(fieldName = 'file') {
     debug(`Creating single file middleware ${fieldName}`);
+
     const storage = multer.memoryStorage();
-    const upload = multer({ storage }).single(fieldName);
+    const upload = multer({ 
+      storage,
+      limits: {
+        fileSize: 8 * 1024 * 1024,
+      },
+     }).single(fieldName);
 
     return (req: Request, res: Response, next: NextFunction) => {
       debug(`Uploading single file: ${fieldName}`);
