@@ -10,7 +10,7 @@ export abstract class BaseRouter<T, C> {
 
   constructor(
     protected readonly controller: BaseController<T, C>,
-    protected readonly authInterceptor: AuthInterceptor
+    protected readonly authInterceptor: AuthInterceptor,
   ) {
     debug('Instantiated BaseRouter');
 

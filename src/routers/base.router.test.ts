@@ -1,12 +1,16 @@
 import { type BaseController } from "../controllers/base.controller"
 import { type AuthInterceptor } from "../middlewares/auth.interceptor";
+import { type FilesInterceptor } from "../middlewares/files.interceptor";
 import { BaseRouter } from "./base.router";
 
 type MockEntity = { id: string; name: string };
 type MockCreateDto = { name: string }; 
 
 class TestRouter extends BaseRouter<MockEntity, MockCreateDto> {
-  constructor(controller: BaseController<MockEntity, MockCreateDto>, authInterceptor: AuthInterceptor) {
+  constructor(
+    controller: BaseController<MockEntity, MockCreateDto>, 
+    authInterceptor: AuthInterceptor,
+  ) {
     super(controller, authInterceptor);
   }
 }
