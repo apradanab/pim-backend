@@ -21,13 +21,19 @@ describe('Given an instance of the class FilesInterceptor', () => {
   });
 
   describe('When the method singleFile is used', () => {
-    const mockMiddleware = jest.fn((req, res, next) => {
-    next();
-  });
+    let mockMiddleware: jest.Mock;
+    let errorMiddleware: jest.Mock;
 
-    multer.memoryStorage = jest.fn();
-    (multer as unknown as jest.Mock).mockReturnValue({
-      single: jest.fn().mockReturnValue(mockMiddleware)
+    beforeEach(() => {
+      jest.clearAllMocks();
+
+      mockMiddleware = jest.fn((req, res, next) => next());
+      errorMiddleware = jest.fn((req, res, next) => next(new HttpError(500, 'File upload failed', 'Multer error')));
+
+      multer.memoryStorage = jest.fn();
+      (multer as unknown as jest.Mock).mockReturnValue({
+        single: jest.fn().mockImplementation(() => mockMiddleware),
+      });
     });
 
     test('Then it should call Multer middleware without errors', () => {
@@ -38,12 +44,8 @@ describe('Given an instance of the class FilesInterceptor', () => {
     });
 
     test('Then it should call next with an error when upload fails', () => {
-      const errorMiddleware = jest.fn((req, res, next) => {
-        next(new HttpError(500, 'File upload failed', 'Multer error'));
-      });
-
       (multer as unknown as jest.Mock).mockReturnValue({
-        single: jest.fn().mockReturnValue(errorMiddleware),
+        single: jest.fn().mockImplementation(() => errorMiddleware),
       });
 
       const middleware = interceptor.singleFile();
@@ -54,32 +56,19 @@ describe('Given an instance of the class FilesInterceptor', () => {
   });
 
   describe('When the method cloudinaryUpload is used', () => {
-    let uploadMock: jest.Mock;
-    let endMock: jest.Mock;
-
     beforeEach(() => {
       jest.clearAllMocks();
-   
-
-    endMock = jest.fn();
-    uploadMock = jest.fn().mockImplementation((_options, callback) => {
-      return {
-          end: endMock.mockImplementation((buffer) => {
-          callback(null, { secure_url: 'https://cloudinary.com/test-image.jpg' });
-          }),
-        };
-      });
-
-      cloudinary.uploader.upload_stream = uploadMock;
     });
 
-    test('Then it should upload a file succesfully and call uploadStream.end()', async () => {
-      req.file = { buffer: Buffer.from('test') } as unknown as Express.Multer.File;
+    test('Then it should upload a file successfully', async () => {
+      req.file = { buffer: Buffer.from('test'), mimetype: 'image/png' } as unknown as Express.Multer.File;
+
+      const mockUpload = jest.fn().mockResolvedValue({ secure_url: 'https://cloudinary.com/test-image.jpg' });
+      cloudinary.uploader.upload = mockUpload
 
       await interceptor.cloudinaryUpload(req, res, next);
 
-      expect(uploadMock).toHaveBeenCalled();
-      expect(endMock).toHaveBeenCalledWith(req.file.buffer);
+      expect(mockUpload).toHaveBeenCalled();
       expect(req.body.image).toBe('https://cloudinary.com/test-image.jpg');
       expect(next).toHaveBeenCalled();
     });
@@ -94,17 +83,16 @@ describe('Given an instance of the class FilesInterceptor', () => {
     });
 
     test('Then it should handle upload errors', async () => {
-      req.file = { buffer: Buffer.from('test') } as unknown as Express.Multer.File;
+      req.file = { buffer: Buffer.from('test'), mimetype: 'image/png' } as unknown as Express.Multer.File;
 
-      uploadMock.mockImplementation((_options, callback) => {
-        return {
-          end: jest.fn(() => callback(new Error('Upload failed'))),
-        };
-      });
+      const mockUpload = jest.fn().mockRejectedValue(new Error('Upload failed'));
+      cloudinary.uploader.upload = mockUpload;
 
       await interceptor.cloudinaryUpload(req, res, next);
 
+      expect(mockUpload).toHaveBeenCalled();
       expect(next).toHaveBeenCalledWith(expect.any(HttpError));
+      expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusMessage: 'Cloudinary upload failed' }));
     });
   });
 });

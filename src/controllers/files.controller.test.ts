@@ -1,6 +1,5 @@
 import { type NextFunction, type Request, type Response } from 'express';
 import { FilesController } from '../controllers/files.controller';
-import { HttpError } from '../middlewares/errors.middleware';
 
 describe('Given an instance of the class FilesController', () => {
   let req: Partial<Request>;
