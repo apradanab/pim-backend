@@ -1,6 +1,5 @@
 import { type BaseController } from "../controllers/base.controller"
 import { type AuthInterceptor } from "../middlewares/auth.interceptor";
-import { type FilesInterceptor } from "../middlewares/files.interceptor";
 import { BaseRouter } from "./base.router";
 
 type MockEntity = { id: string; name: string };

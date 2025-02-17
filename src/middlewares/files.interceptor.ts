@@ -17,9 +17,7 @@ export class FilesInterceptor {
     const storage = multer.memoryStorage();
     const upload = multer({ 
       storage,
-      limits: {
-        fileSize: 8 * 1024 * 1024,
-      },
+      limits: { fileSize: 8 * 1024 * 1024 },
     }).single(fieldName);
 
     return (req: Request, res: Response, next: NextFunction) => {
@@ -50,19 +48,11 @@ export class FilesInterceptor {
     }
 
     try {
-      debug('Uploading file buffer to Cloudinary');
-
-      const result: UploadApiResponse = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          options, 
-          (error, result) => {
-          if(error) reject(error);
-          else resolve(result as UploadApiResponse);
-        });
-
-        uploadStream.end(req.file?.buffer);
-      });
-
+      const result: UploadApiResponse = await cloudinary.uploader.upload(
+        `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`,
+        options
+      );
+      
       req.body.image = result.secure_url;
       debug(`Upload successful: ${req.body.image}`);
       next();
