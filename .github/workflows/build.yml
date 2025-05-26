@@ -10,15 +10,21 @@ jobs:
     name: SonarCloud
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          node-version: 20
+          cache: 'npm'
+
       - name: Install modules
         run: npm ci
+
       - name: Testing coverage
         run: npm run test:prod
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v4.1.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
