@@ -7,7 +7,6 @@ import { EmailService } from '../services/email.services';
 import { HttpError } from '../middlewares/errors.middleware';
 import { type Request, type Response } from 'express';
 import 'dotenv/config';
-import { BaseController } from './base.controller';
 
 describe('Given an instance of the UserController class', () => {
   const repo: UsersSqlRepo = {

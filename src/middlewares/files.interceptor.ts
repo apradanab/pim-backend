@@ -1,4 +1,4 @@
-import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
 import multer from 'multer';
 import { type Request, type Response, type NextFunction } from 'express';
 import createDebug from 'debug';
