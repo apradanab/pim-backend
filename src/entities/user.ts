@@ -26,4 +26,5 @@ export type UserUpdateDto = {
   password?: string;
   avatar?: string;
   approved?: boolean;
+  role?: 'GUEST' | 'USER' | 'ADMIN';
 };
