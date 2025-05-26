@@ -138,23 +138,15 @@ export class UsersController extends BaseController<User, UserCreateDto> {
   } 
 
   async update(req: Request, res: Response, next: NextFunction) {
-    const { id } = req.params;
-
     try {
-      const { payload, ...data } = req.body as Partial<UserUpdateDto & { payload?: unknown }>;
-      const { error } = userUpdateDtoSchema.validate(data);
-
-      if (error) {
-        next(new HttpError(400, 'Validation Error', error.details.map(detail => detail.message).join(', ')));
-        return;
+      if (req.body.password) {
+        req.body.password = await Auth.hash(req.body.password); 
       }
 
-      if (data.password) {
-        data.password = await Auth.hash(data.password);
-      }
-
-      const updatedUser = await this.repo.update(id, data);
-      res.json(updatedUser);
+      const { payload, id, createdAt, updatedAt, ...updateData } = req.body;
+      req.body = updateData; 
+     
+      await super.update(req, res, next); 
     } catch (error) {
       next(error);
     }

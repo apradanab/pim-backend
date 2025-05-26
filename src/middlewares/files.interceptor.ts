@@ -32,7 +32,10 @@ export class FilesInterceptor {
   }
 
   async cloudinaryUpload(req: Request, res: Response, next: NextFunction) {
-    debug('Uploading file to Cloudinary');
+    if(!req.file) return next();
+
+    const fieldName = req.file.fieldname;
+    debug(`Uploading file to Cloudinary: ${fieldName}`);
 
     const options = {
       folder: process.env.CLOUDINARY_FOLDER ?? 'pim-images',
@@ -41,20 +44,14 @@ export class FilesInterceptor {
       overwrite: true,
     };
 
-    if (!req.file) {
-      debug('No file uploaded, using default placeholder');
-      req.body.image = 'https://res.cloudinary.com/djzn9f9kc/image/upload/v1739558839/pim-images/pim_nzjxbq.jpg';
-      return next();
-    }
-
     try {
-      const result: UploadApiResponse = await cloudinary.uploader.upload(
+      const result = await cloudinary.uploader.upload(
         `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`,
         options
       );
       
-      req.body.image = result.secure_url;
-      debug(`Upload successful: ${req.body.image}`);
+      req.body[fieldName] = result.secure_url;        
+      debug(`Upload successful: ${result.secure_url}`);
       next();
     } catch (error) {
       next(new HttpError(500, 'Cloudinary upload failed', (error as Error).message));

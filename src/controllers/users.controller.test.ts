@@ -7,6 +7,7 @@ import { EmailService } from '../services/email.services';
 import { HttpError } from '../middlewares/errors.middleware';
 import { type Request, type Response } from 'express';
 import 'dotenv/config';
+import { BaseController } from './base.controller';
 
 describe('Given an instance of the UserController class', () => {
   const repo: UsersSqlRepo = {
@@ -19,6 +20,7 @@ describe('Given an instance of the UserController class', () => {
 
   jest.spyOn(Auth, 'signJwt').mockReturnValue('token');
   jest.spyOn(Auth, 'verifyJwt').mockReturnValue({ id: '1', role: 'USER' });
+  
   jest.spyOn(EmailService, 'generateRegistrationEmail').mockReturnValue({ 
     subject: 'Welcome', 
     content: 'Welcome email content' 
@@ -277,36 +279,29 @@ describe('Given an instance of the UserController class', () => {
     });
   });
 
-  describe('When calling the update method', () => {
-    test('Should call next with an error if validation fails', async () => {
+    describe('When calling the update method', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
       req.params = { id: '1' };
-      req.body = { ivalidField: 'invalid' };
-
-      await controller.update(req, res, next);
-
-      expect(next).toHaveBeenCalledWith(expect.any(HttpError));
     });
 
-    test('Should hash the password and update the user', async () => {
-      req.params = { id: '1' };
+    test('Should hash password before calling super.update', async () => {
       req.body = { password: TEST_PASSWORD };
-      (repo.update as jest.Mock).mockResolvedValue({ id: '1', password: TEST_HASHED_PASSWORD });
-
       await controller.update(req, res, next);
-
+      
       expect(Auth.hash).toHaveBeenCalledWith(TEST_PASSWORD);
-      expect(repo.update).toHaveBeenCalledWith('1', { password: TEST_HASHED_PASSWORD });
-      expect(res.json).toHaveBeenCalledWith({ id: '1', password: TEST_HASHED_PASSWORD });
+      expect(repo.update).toHaveBeenCalled();
     });
 
-    test('Should call next with an error if update fails', async () => {
-      req.params = { id: '1' };
-      req.body = { name: 'Updated Name' };
-      (repo.update as jest.Mock).mockRejectedValue(new Error('Updated failed'));
+    test('Should handle hashing errors', async () => {
+      req.body = { password: TEST_PASSWORD };
+      const mockError = new Error('Hashing failed');
+      (Auth.hash as jest.Mock).mockRejectedValue(mockError);
 
       await controller.update(req, res, next);
 
-      expect(next).toHaveBeenCalledWith(expect.any(Error));
+      expect(next).toHaveBeenCalledWith(mockError);
+      expect(repo.update).not.toHaveBeenCalled();
     });
   });
 });

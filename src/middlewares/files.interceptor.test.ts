@@ -56,41 +56,55 @@ describe('Given an instance of the class FilesInterceptor', () => {
   });
 
   describe('When the method cloudinaryUpload is used', () => {
+    let mockUpload: jest.Mock;
+
     beforeEach(() => {
       jest.clearAllMocks();
+      req.body = {};
+      mockUpload = jest.fn().mockResolvedValue({
+        secure_url: 'https://cloudinary.com/test-image.jpg'
+      });
+      cloudinary.uploader.upload = mockUpload;
     });
 
     test('Then it should upload a file successfully', async () => {
-      req.file = { buffer: Buffer.from('test'), mimetype: 'image/png' } as unknown as Express.Multer.File;
-
-      const mockUpload = jest.fn().mockResolvedValue({ secure_url: 'https://cloudinary.com/test-image.jpg' });
-      cloudinary.uploader.upload = mockUpload
+      req.file = { 
+        fieldname: 'avatar',
+        buffer: Buffer.from('test'),
+        mimetype: 'image.png'
+      } as unknown as Express.Multer.File;
 
       await interceptor.cloudinaryUpload(req, res, next);
 
       expect(mockUpload).toHaveBeenCalled();
-      expect(req.body.image).toBe('https://cloudinary.com/test-image.jpg');
+      expect(req.body.avatar).toBe('https://cloudinary.com/test-image.jpg');
       expect(next).toHaveBeenCalled();
     });
 
-    test('Then it should set a default image when no file is uploaded', async () => {
+    test('Then it should continue without error when no file is uploaded', async () => {
       req.file = undefined;
+      cloudinary.uploader.upload = jest.fn();
 
       await interceptor.cloudinaryUpload(req, res, next);
 
-      expect(req.body.image).toBe('https://res.cloudinary.com/djzn9f9kc/image/upload/v1739558839/pim-images/pim_nzjxbq.jpg');
+      expect(cloudinary.uploader.upload).not.toHaveBeenCalled();
+      expect(req.body.avatar).toBeUndefined();
       expect(next).toHaveBeenCalled();
+      expect(next).not.toHaveBeenCalledWith(expect.any(Error));
     });
 
     test('Then it should handle upload errors', async () => {
-      req.file = { buffer: Buffer.from('test'), mimetype: 'image/png' } as unknown as Express.Multer.File;
+      req.file = { 
+        fieldname: 'avatar',
+        buffer: Buffer.from('test'),
+        mimetype: 'image/png'
+      } as unknown as Express.Multer.File;
 
-      const mockUpload = jest.fn().mockRejectedValue(new Error('Upload failed'));
-      cloudinary.uploader.upload = mockUpload;
+      cloudinary.uploader.upload = jest.fn().mockRejectedValue(new Error('Upload failed'));
 
       await interceptor.cloudinaryUpload(req, res, next);
 
-      expect(mockUpload).toHaveBeenCalled();
+      expect(cloudinary.uploader.upload).toHaveBeenCalled();
       expect(next).toHaveBeenCalledWith(expect.any(HttpError));
       expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusMessage: 'Cloudinary upload failed' }));
     });

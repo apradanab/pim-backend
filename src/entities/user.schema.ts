@@ -22,9 +22,8 @@ export const userUpdateDtoSchema = Joi.object<UserUpdateDto>({
   email: Joi.string().email().messages({
     'string.email': 'Please provide a valid email address.',
   }),
-  password: Joi.string().min(8).max(30).messages({
+  password: Joi.string().min(8).messages({
     'string.min': 'Password must be at least 8 characters long.',
-    'string.max': 'Password cannot exceed 30 characters.',
   }),
   avatar: Joi.string(),
   approved: Joi.boolean().forbidden(),
