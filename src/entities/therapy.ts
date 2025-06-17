@@ -7,7 +7,7 @@ export type Therapy = {
   description: string;
   content: string;
   image: string;
-  resources?: Advice[];
+  advices?: Advice[];
   appointments?: Appointment[];
   createdAt: Date;
   updatedAt: Date;

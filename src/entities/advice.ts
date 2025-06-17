@@ -1,5 +1,3 @@
-import { type Therapy } from './therapy.js';
-
 export type Advice = {
   id: string;
   title: string;
@@ -7,7 +5,6 @@ export type Advice = {
   content: string;
   image: string;
   therapyId: string;
-  therapy?: Therapy;
   createdAt: Date;
   updatedAt: Date;
 };
