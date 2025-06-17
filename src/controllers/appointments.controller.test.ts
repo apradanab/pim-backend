@@ -42,7 +42,7 @@ describe('Given an instance of the AppointmentController class', () => {
           date: new Date('2025-02-12'),
           startTime: new Date('2025-02-12T10:00:00.000Z'),
           endTime: new Date('2025-02-12T11:00:00.000Z'),
-          serviceId: 'service1',
+          therapyId: 'therapy1',
           status: 'OCCUPIED',
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -77,19 +77,19 @@ describe('Given an instance of the AppointmentController class', () => {
       date: new Date('2025-02-12'),
       startTime: new Date('2025-02-12T10:30:00.000Z'),
       endTime: new Date('2025-02-12T11:30:00.000Z'),
-      serviceId: '1',
+      therapyId: '1',
       status: 'OCCUPIED',
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
-    const mockRequest = (serviceId: string): AppointmentCreateDto => ({
+    const mockRequest = (therapyId: string): AppointmentCreateDto => ({
       ...mockAppointment,
-      serviceId,
+      therapyId: therapyId,
     });
 
-    const mockRepoWithConflict = (serviceId: string): Appointment[] => [
-      { ...mockConflictAppointment, serviceId, status: 'OCCUPIED' },
+    const mockRepoWithConflict = (therapyId: string): Appointment[] => [
+      { ...mockConflictAppointment, therapyId: therapyId, status: 'OCCUPIED' },
     ];
     
     test('Should return error if appointment conflicts with another', async () => {
@@ -118,7 +118,7 @@ describe('Given an instance of the AppointmentController class', () => {
       const newAppointment: Appointment = {
         id: '123',
         ...mockAppointment,
-        serviceId: '1',
+        therapyId: '1',
         status: 'PENDING',
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -135,7 +135,7 @@ describe('Given an instance of the AppointmentController class', () => {
     });
 
     test('Should handle errors when creating an appointment', async () => {
-      req.body = { date: new Date(), startTime: new Date(), endTime: new Date(), serviceId: '1' };
+      req.body = { date: new Date(), startTime: new Date(), endTime: new Date(), therapyId: '1' };
       (repo.create as jest.Mock).mockRejectedValue(new Error('Database error'));
 
       await controller.create(req, res, next);
@@ -150,7 +150,7 @@ describe('Given an instance of the AppointmentController class', () => {
       date: new Date('2025-02-12'),
       startTime: new Date('2025-02-12T10:00:00.000Z'),
       endTime: new Date('2025-02-12T11:00:00.000Z'),
-      serviceId: '1',
+      therapyId: '1',
       status: 'OCCUPIED',
       createdAt: new Date(),
       updatedAt: new Date(),

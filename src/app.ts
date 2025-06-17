@@ -6,12 +6,12 @@ import cors from 'cors';
 import { UsersSqlRepo } from './repositories/users.sql.repo.js';
 import { UsersController } from './controllers/users.controller.js';
 import { UsersRouter } from './routers/users.router.js';
-import { ServicesSqlRepo } from './repositories/services.sql.repo.js';
-import { ServicesController } from './controllers/services.controller.js';
-import { ServicesRouter } from './routers/services.router.js';
-import { ResourcesSqlRepo } from './repositories/resources.sql.repo.js';
-import { ResourcesController } from './controllers/resources.controller.js';
-import { ResourcesRouter } from './routers/resources.router.js';
+import { TherapiesSqlRepo } from './repositories/therapies.sql.repo.js';
+import { TherapiesController } from './controllers/therapies.controller.js';
+import { TherapiesRouter } from './routers/therapies.router.js';
+import { AdvicesSqlRepo } from './repositories/advices.sql.repo.js';
+import { AdvicesController } from './controllers/advices.controller.js';
+import { AdvicesRouter } from './routers/advices.router.js';
 import { AppointmentsSqlRepo } from './repositories/appointments.sql.repo.js';
 import { AppointmentsController } from './controllers/appointments.controller.js';
 import { AppointmentsRouter } from './routers/appointments.router.js';
@@ -52,23 +52,23 @@ export const startApp = (app: Express, prisma: PrismaClient) => {
   );
   app.use('/users', usersRouter.router);
 
-  const servicesRepo = new ServicesSqlRepo(prisma);
-  const servicesController = new ServicesController(servicesRepo);
-  const servicesRouter = new ServicesRouter(
-    servicesController,
+  const therapiesRepo = new TherapiesSqlRepo(prisma);
+  const therapiesController = new TherapiesController(therapiesRepo);
+  const therapiesRouter = new TherapiesRouter(
+    therapiesController,
     authInterceptor,
     filesInterceptor
   );
-  app.use('/services', servicesRouter.router);
+  app.use('/therapies', therapiesRouter.router);
 
-  const resourcesRepo = new ResourcesSqlRepo(prisma);
-  const resourcesController = new ResourcesController(resourcesRepo);
-  const resourcesRouter = new ResourcesRouter(
-    resourcesController,
+  const advicesRepo = new AdvicesSqlRepo(prisma);
+  const advicesController = new AdvicesController(advicesRepo);
+  const advicesRouter = new AdvicesRouter(
+    advicesController,
     authInterceptor,
     filesInterceptor
   );
-  app.use('/resources', resourcesRouter.router);
+  app.use('/advices', advicesRouter.router);
 
   const appointmentsRepo = new AppointmentsSqlRepo(prisma);
   const appointmentsController = new AppointmentsController(appointmentsRepo);

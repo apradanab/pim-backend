@@ -1,4 +1,4 @@
-import { type Service } from './service.js';
+import { type Therapy } from './therapy.js';
 import { type AppointmentUser } from './appointment-user.js';
 
 export type Appointment = {
@@ -7,8 +7,8 @@ export type Appointment = {
   startTime: Date;
   endTime: Date;
   status: 'AVAILABLE' | 'PENDING' | 'OCCUPIED' | 'COMPLETED' | 'CANCELLED';
-  serviceId: string;
-  service?: Partial<Service>;
+  therapyId: string;
+  therapy?: Partial<Therapy>;
   notes?: string | null;
   adminNotes?: string | null;
   users?: AppointmentUser[];
@@ -20,7 +20,7 @@ export type AppointmentCreateDto = {
   date: Date;
   startTime: Date;
   endTime: Date;
-  serviceId: string;
+  therapyId: string;
   notes?: string;
   adminNotes?: string;
 };

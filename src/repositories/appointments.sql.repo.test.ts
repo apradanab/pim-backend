@@ -6,7 +6,7 @@ import { type PrismaClient } from '@prisma/client';
 const mockPrisma = {
   appointment: {
     findMany: jest.fn().mockResolvedValue([]),
-    findUnique: jest.fn().mockResolvedValue({ id: '1', status: 'PENDING', serviceId: 'service1' }),
+    findUnique: jest.fn().mockResolvedValue({ id: '1', status: 'PENDING', therapyId: 'therapy1' }),
     findFirst: jest.fn().mockResolvedValue(null),
     create: jest.fn().mockResolvedValue({ id: '1', status: 'PENDING' }),
     update: jest.fn().mockResolvedValue({ id: '1', status: 'OCCUPIED' }),
@@ -34,7 +34,7 @@ describe('AppointmentSqlRepo', () => {
     test('should return an appointment when the ID is valid', async () => {
       const result = await repo.readById('1');
       expect(mockPrisma.appointment.findUnique).toHaveBeenCalledWith({ where: { id: '1' }, select: expect.any(Object) });
-      expect(result).toEqual({ id: '1', status: 'PENDING', serviceId: 'service1' });
+      expect(result).toEqual({ id: '1', status: 'PENDING', therapyId: 'therapy1' });
     });
 
     test('should throw a 404 error if the appointment is not found', async () => {
@@ -58,7 +58,7 @@ describe('AppointmentSqlRepo', () => {
 
   describe('create', () => {
     test('should create a new appointment when no conflict exists', async () => {
-      const data: AppointmentCreateDto = { date: new Date(), startTime: new Date(), endTime: new Date(), serviceId: 'service1' };
+      const data: AppointmentCreateDto = { date: new Date(), startTime: new Date(), endTime: new Date(), therapyId: 'therapy1' };
       const result = await repo.create(data);
       expect(mockPrisma.appointment.create).toHaveBeenCalledWith({ data, select: expect.any(Object) });
       expect(result).toEqual({ id: '1', status: 'PENDING' });
@@ -66,7 +66,7 @@ describe('AppointmentSqlRepo', () => {
 
     test('should throw error if appointment conflicts with existing one', async () => {
       (mockPrisma.appointment.findFirst as jest.Mock).mockResolvedValueOnce({ id: '2' });
-      const data: AppointmentCreateDto = { date: new Date(), startTime: new Date(), endTime: new Date(), serviceId: 'service1' };
+      const data: AppointmentCreateDto = { date: new Date(), startTime: new Date(), endTime: new Date(), therapyId: 'therapy1' };
       await expect(repo.create(data)).rejects.toThrow('Appointment time conflicts with another booking.');
     })
   })

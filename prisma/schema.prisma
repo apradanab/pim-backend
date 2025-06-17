@@ -27,12 +27,12 @@ model Appointment {
   startTime  DateTime
   endTime    DateTime
   status     AppointmentStatus @default(AVAILABLE)
-  serviceId  String
+  therapyId  String
   notes      String?
   adminNotes String?
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
-  service    Service           @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  therapy    Therapy           @relation(fields: [therapyId], references: [id], onDelete: Cascade)
   users      AppointmentUser[]
 }
 
@@ -48,7 +48,7 @@ model AppointmentUser {
   @@unique([appointmentId, userId])
 }
 
-model Service {
+model Therapy {
   id           String        @id @default(uuid())
   title        String
   description  String
@@ -58,19 +58,19 @@ model Service {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   appointments Appointment[]
-  resources    Resource[]
+  advices    Advice[]
 }
 
-model Resource {
+model Advice {
   id          String   @id @default(uuid())
   title       String
   description String
   content     String
   image       String
-  serviceId   String
+  therapyId   String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  therapy     Therapy  @relation(fields: [therapyId], references: [id], onDelete: Cascade)
 }
 
 enum Role {
