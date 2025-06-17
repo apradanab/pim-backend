@@ -1,19 +1,19 @@
-import { type Resource } from './resource.js';
+import { type Advice } from './advice.js';
 import { type Appointment } from './appointment.js';
 
-export type Service = {
+export type Therapy = {
   id: string;
   title: string;
   description: string;
   content: string;
   image: string;
-  resources?: Resource[];
+  advices?: Advice[];
   appointments?: Appointment[];
   createdAt: Date;
   updatedAt: Date;
 };
 
-export type ServiceCreateDto = {
+export type TherapyCreateDto = {
   title: string;
   description: string;
   content: string;

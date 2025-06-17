@@ -14,10 +14,10 @@ const select = {
   status: true,
   notes: true,
   adminNotes: true,
-  serviceId: true,
+  therapyId: true,
   createdAt: true,
   updatedAt: true,
-  service: { select: { id: true, title: true } },
+  therapy: { select: { id: true, title: true } },
   users: {
     select: {
       id: true,
@@ -62,7 +62,7 @@ export class AppointmentsSqlRepo implements WithAppointmentFeatures<Appointment,
   async create(data: AppointmentCreateDto): Promise<Appointment> {
     const conflict = await this.prisma.appointment.findFirst({
       where: { 
-        serviceId: data.serviceId, 
+        therapyId: data.therapyId, 
         date: data.date, OR: [{ startTime: { lte: data.endTime }, endTime: { gte: data.startTime } }] },
     });
 

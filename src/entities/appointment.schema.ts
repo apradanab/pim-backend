@@ -5,7 +5,7 @@ export const appointmentCreateDtoSchema = Joi.object<AppointmentCreateDto>({
   date: Joi.date().required(),
   startTime: Joi.date().required(),
   endTime: Joi.date().greater(Joi.ref('startTime')).required(),
-  serviceId: Joi.string().uuid().required(),
+  therapyId: Joi.string().uuid().required(),
   notes: Joi.string().optional(),
   adminNotes: Joi.string().optional(),
 });

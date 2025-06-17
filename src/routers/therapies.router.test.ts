@@ -1,16 +1,16 @@
-import { type ResourcesController } from '../controllers/resources.controller';
+import { type TherapiesController } from '../controllers/therapies.controller';
 import { type AuthInterceptor } from '../middlewares/auth.interceptor';
 import { type FilesInterceptor } from '../middlewares/files.interceptor';
-import { ResourcesRouter } from './resources.router';
+import { TherapiesRouter } from './therapies.router';
 
-describe('Given an instance of the class ResourcesRouter', () => {
+describe('Given an instance of the class TherapiesRouter', () => {
   const controller = {
     getAll: jest.fn(),
     getById: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
-  } as unknown as ResourcesController;
+  } as unknown as TherapiesController;
 
   const authInterceptor = {
     authentication: jest.fn(),
@@ -22,9 +22,9 @@ describe('Given an instance of the class ResourcesRouter', () => {
     cloudinaryUpload: jest.fn(),
   } as unknown as FilesInterceptor;
 
-  const router = new ResourcesRouter(controller, authInterceptor, filesInterceptor);
+  const router = new TherapiesRouter(controller, authInterceptor, filesInterceptor);
 
-  test('Then it should be an instance of the class ResourcesRouter', () => {
-    expect(router).toBeInstanceOf(ResourcesRouter);
+  test('Then it should be an instance of the class TherapiesRouter', () => {
+    expect(router).toBeInstanceOf(TherapiesRouter);
   });
 });

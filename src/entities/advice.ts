@@ -1,21 +1,18 @@
-import { type Service } from './service.js';
-
-export type Resource = {
+export type Advice = {
   id: string;
   title: string;
   description: string;
   content: string;
   image: string;
-  serviceId: string;
-  service?: Service;
+  therapyId: string;
   createdAt: Date;
   updatedAt: Date;
 };
 
-export type ResourceCreateDto = {
+export type AdviceCreateDto = {
   title: string;
   description: string;
   content: string;
   image: string;
-  serviceId: string;
+  therapyId: string;
 };
