@@ -15,5 +15,7 @@ export class AdvicesRouter extends BaseFilesRouter<Advice, AdviceCreateDto>{
   ) {
     super(controller, authInterceptor, filesInterceptor);
     debug('Instantiated AdvicesRouter');
+
+    this.router.get('/therapy/:therapyId', controller.getByTherapyId.bind(controller));
   }
 }
