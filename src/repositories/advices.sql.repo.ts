@@ -1,6 +1,6 @@
 import { type PrismaClient } from '@prisma/client';
 import createDebug from 'debug';
-import { type Repo } from './type.repo.js';
+import { type WithTherapyAdvices, type Repo } from './type.repo.js';
 import { AdviceCreateDto, type Advice } from '../entities/advice.js';
 import { HttpError } from '../middlewares/errors.middleware.js';
 
@@ -17,7 +17,7 @@ const select = {
   updatedAt: true,
 }
 
-export class AdvicesSqlRepo implements Repo<Advice, Partial<Advice>> {
+export class AdvicesSqlRepo implements WithTherapyAdvices<Advice, AdviceCreateDto> {
   constructor(private readonly prisma: PrismaClient) {
     debug('Instantiated AdvicesSqlRepo');
   }
@@ -37,6 +37,19 @@ export class AdvicesSqlRepo implements Repo<Advice, Partial<Advice>> {
     }
 
     return advice;
+  }
+
+  async readByTherapyId(therapyId: string): Promise<Advice[]> {
+    const advices = await this.prisma.advice.findMany({
+      where: { therapyId },
+      select,
+    });
+
+    if (!advices) {
+      throw new HttpError(404, 'Not Found', `No advices found for therapy ${therapyId}`)
+    }
+
+    return advices;
   }
 
   async create(data: AdviceCreateDto): Promise<Advice> {

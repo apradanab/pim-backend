@@ -12,6 +12,10 @@ export type WithLoginRepo<T, C> = Repo<T, C> & {
   searchForLogin(key: 'email', value: string): Promise<Partial<T>>;
 };
 
+export type WithTherapyAdvices<T, C> = Repo<T, C> & {
+  readByTherapyId(therapyId: string): Promise<T[]>;
+};
+
 export type WithAppointmentFeatures<T, C> = Repo<T, C> & {
   readByUser(userId: string): Promise<T[]>;
   update(id: string, data: Partial<AppointmentUpdateDto>, userRole: string): Promise<T>;
