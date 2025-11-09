@@ -1,10 +1,17 @@
 import { AdvicesController } from './advices.controller';
-import { type Repo } from '../repositories/type.repo';
+import { type WithTherapyAdvices } from '../repositories/type.repo';
 import { type Advice, type AdviceCreateDto } from '../entities/advice';
 import { adviceCreateDtoSchema, adviceUpdateDtoSchema } from '../entities/advice.schema';
 
 describe('Given an instance of the AdvicesController class', () => {
-  const repo: Repo<Advice, AdviceCreateDto> = {} as unknown as Repo<Advice, AdviceCreateDto>;
+  const repo: WithTherapyAdvices<Advice, AdviceCreateDto> = {
+    readAll: jest.fn(),
+    readById: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+    readByTherapyId: jest.fn()
+  };
   const controller = new AdvicesController(repo);
 
   test('Should be an instance of the AdvicesController class', () => {
